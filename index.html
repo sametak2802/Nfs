@@ -1233,7 +1233,7 @@ function selectTrack(d) {
   trackIdx = cyc(trackIdx, TRACKS.length, d); THEME = TRACKS[trackIdx];
   rebuildWorld();
 }
-function rebuildWorld() {
+function rebuildWorld(after) {
   var prev = state, focus = menu.focus;
   rebuilding = true; state = 'loading'; loadProgress = 0;
   players.forEach(function (p) { disposeCar(p.mesh); }); players = [];
@@ -1245,6 +1245,7 @@ function rebuildWorld() {
     loadProgress = i / tasks.length;
     if (i < tasks.length) { setTimeout(step, 16); return; }
     rebuilding = false;
+    if (after) { after(); return; }
     if (prev === 'lobby') hostToLobby(); else { toMenu(); menu.focus = focus; }
   }
   setTimeout(step, 30);
@@ -1267,7 +1268,7 @@ var CAR_MODELS = {
   vento: { name: 'Vento RS', type: 'Hot hatch', L: 4.3, W: 1.86, wb: 2.64, fo: 0.86, r: 0.36, clr: 0.13, nose: 0.68, hood: 0.92, belt: 0.96,
     cowl: 2.95, roofF: 2.35, roofR: 0.55, roofH: 1.4, deckX: 0.16, deck: 0.98, tail: 0.96, gw: 0.78,
     power: 231, mass: 1360, grip: 1.05, drag: 0.319, drive: 'fwd', exhaust: 2 },
-  argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.85, W: 1.98, wb: 2.8, fo: 0.95, r: 0.375, clr: 0.12, nose: 0.7, hood: 0.94, belt: 0.96,
+  argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.62, W: 1.98, wb: 2.74, fo: 0.78, r: 0.375, clr: 0.12, nose: 0.82, hood: 0.98, belt: 0.97,
     cowl: 2.55, roofF: 1.95, roofR: 1.15, roofH: 1.28, deckX: 0.62, deck: 0.96, tail: 0.95, gw: 0.74,
     power: 257, mass: 1510, grip: 1.05, drag: 0.354, drive: 'rwd', stripes: true, exhaust: 2 },
   yildiz: { name: 'Yıldız 1.6', type: 'Klasik sedan', L: 4.4, W: 1.7, wb: 2.45, fo: 0.86, r: 0.315, clr: 0.16, nose: 0.76, hood: 0.9, belt: 0.93,
@@ -1890,7 +1891,7 @@ function stepVehicle(car, dt, inp) {
   // --- direksiyon girişi: tuşta hızlı ama sert olmayan geçiş ---
   var target = inp.steer;
   var growing = Math.abs(target) > Math.abs(car.steer) && target * car.steer >= 0;
-  var rate = inp.analog ? 12 : (growing ? 9 : 11);
+  var rate = inp.analog ? 8 : (growing ? 4.2 : 6.5);          // tuşa basınca yumuşak, bırakınca biraz daha hızlı
   car.steer += clamp(target - car.steer, -rate * dt, rate * dt);
   var st = car.steer, sAbs = Math.abs(st);
 
@@ -1901,7 +1902,7 @@ function stepVehicle(car, dt, inp) {
   var wCap = Math.min(wKin, wGrip * (hand ? 1.3 : 1) * (gameMode === 'drift' ? 1.15 : 1), 2.45);
   var wT = -Math.sign(st) * sAbs * wCap;                        // sağ = eksi
   if (u < -0.3) wT = -wT * 0.8;                                // geri viteste ters
-  var yawResp = hand ? 9 : (assist ? 13 : 11);
+  var yawResp = hand ? 7.5 : (assist ? 7.5 : 6.5);
   w += (wT - w) * (1 - Math.exp(-dt * yawResp));
   car.delta = clamp(-st * Math.min(0.5, wCap * L / Math.max(au, 1) + 0.03), -0.5, 0.5);
 
@@ -2272,6 +2273,7 @@ function computeRewards() {
   persist();
 }
 function buildResults() {
+  if (netCars.length || NET.standings) return remoteResults();
   var lines = [], title = '';
   function earnTxt(p, i) { var pr = NET.role === 'host' ? true : profileOf(i); return pr ? '  +' + fmtTL(p.earned || 0) : '  (misafir)'; }
   if (gameMode === 'race') {
@@ -2420,7 +2422,7 @@ function spawnRivals(forRace) {
     for (var pi = 0; pi < [2, 3, 4][difficulty]; pi++) { var pr = makePolice(pi); pr.s = TRACK.len - 85 - pi * 24; pr.off = (pi - 1) * 3; pr.targetOff = pr.off; pr.startS = pr.s; scene.add(pr.mesh); rivals.push(pr); }
     return;
   }
-  var count = (forRace && (numPlayers > 1 || gameMode === 'drift' || gameMode === 'tt')) ? 0 : RIVALS;
+  var count = (forRace && (numPlayers > 1 || gameMode === 'drift' || gameMode === 'tt' || NET.inRemoteRace || (NET.role === 'host' && remoteOpen()))) ? 0 : RIVALS;
   for (var i = 0; i < count; i++) {
     var ch = {
       model: MODEL_KEYS[Math.floor(rnd() * MODEL_KEYS.length)], paint: Math.floor(rnd() * PAINTS.length), finish: Math.floor(rnd() * 3),
@@ -2455,7 +2457,10 @@ function spawnPlayers() {
     var slot = (NET.role === 'host' && NET.playerSlots) ? NET.playerSlots[i] : i;
     var car = makeVehicle(choices[slot], i); car.slot = slot;
     car.mesh = buildCar(choices[slot]); scene.add(car.mesh);
-    placeCarOnTrack(car, TRACK.len - 8, numPlayers === 1 ? 0 : (i === 0 ? -3.2 : 3.2));
+    var gridOff = numPlayers === 1 ? 0 : (i === 0 ? -3.2 : 3.2);
+    if (NET.inRemoteRace) gridOff = 3.8;                                   // uzaktaki oyuncu sağ şeritte
+    else if (NET.role === 'host' && remoteOpen()) gridOff = numPlayers === 1 ? -3.2 : (i === 0 ? -4.4 : -0.9);
+    placeCarOnTrack(car, TRACK.len - 8, gridOff);
     car.crossings = 0; car.maxCross = 0; car.prevProg = car.prog;
     players.push(car);
   }
@@ -2474,6 +2479,7 @@ function startRace() {
 }
 function toMenu() {
   disposeGhost();
+  clearNetCars(); NET.standings = null;
   players.forEach(function (p) { disposeCar(p.mesh); });
   players = [];
   disposeGarage();
@@ -2482,6 +2488,7 @@ function toMenu() {
   clearControls();
 }
 function endRace() {
+  if (NET.role === 'host' && netCars.length) { var st = computeStandings(); remoteSend({ t: 'rres', list: st.map(function (e) { return { name: e.name, ft: e.ft, rank: e.rank, you: e.name === (NET.remoteWho && NET.remoteWho.name) }; }) }); NET.standings = st; }
   players.forEach(function (p) { if (!p.finished) { p.rank = currentRank(p); p.finished = true; p.finishTime = null; } });
   computeRewards();
   state = 'results'; resultsT = 0; menu.focus = 0;
@@ -2494,12 +2501,14 @@ function currentRank(p) {
   var tot = totalProgress(p), rank = 1;
   rivals.forEach(function (r) { if (rivalTotal(r) > tot) rank++; });
   players.forEach(function (o) { if (o !== p && (o.finished || totalProgress(o) > tot)) rank++; });
+  netCars.forEach(function (nc) { if (nc.fin || netCarTotal(nc) > tot) rank++; });
   return rank;
 }
 function finishRank(p) {
   var rank = 1;
   rivals.forEach(function (r) { if (rivalTotal(r) >= TOTAL_LAPS * TRACK.len) rank++; });
   players.forEach(function (o) { if (o !== p && o.finished) rank++; });
+  netCars.forEach(function (nc) { if (nc.fin) rank++; });
   return rank;
 }
 
@@ -2582,8 +2591,10 @@ function updateRace(dt) {
   ttGhostUpdate();
   if (state === 'race') {
     var done = players.filter(function (p) { return p.finished; }).length;
-    if (done === players.length) { waitT += dt; if (waitT > 1.8) endRace(); }
-    else if (done > 0) { waitT += dt; if (waitT > 45) endRace(); }
+    var netDone = netCars.every(function (nc) { return nc.fin; });
+    if (NET.inRemoteRace) { if (done === players.length) { waitT += dt; if (waitT > 75) endRace(); } }
+    else if (done === players.length && netDone) { waitT += dt; if (waitT > 1.8) endRace(); }
+    else if (done > 0 || netCars.some(function (nc) { return nc.fin; })) { waitT += dt; if (waitT > 45) endRace(); }
   }
 }
 function autoPilot(p) {
@@ -2630,7 +2641,7 @@ function updateCamera(p, dt, aspect) {
   var shx = (Math.random() - 0.5) * p.shake * 0.25, shy = (Math.random() - 0.5) * p.shake * 0.2;
   var fast = Math.max(0, speed - 30) / 40;
   if (mode <= 1) {
-    var back = (mode === 0 ? 5.6 : 4.5) * [0.82, 1, 1.22][camDist], up = (mode === 0 ? 2.1 : 1.95) * [0.78, 1, 1.3][camHeight];
+    var back = (mode === 0 ? 5.05 : 4.75) * [0.85, 1, 1.18][camDist], up = (mode === 0 ? 1.95 : 1.8) * [0.8, 1, 1.25][camHeight];
     var tx = p.x - dx * back, tz = p.z - dz * back, ty = p.y + up;
     if (!p.camPos) { p.camPos = new THREE.Vector3(tx, ty, tz); }
     var k = 1 - Math.exp(-dt * (mode === 0 ? 10 : 13));
@@ -2753,7 +2764,7 @@ function unitFor(w, h) { return Math.min(h, w * 0.85) / 100; }
 
 function drawPanel(p, u, x, y) {
   if (gameMode !== 'race') return drawModePanel(p, u, x, y);
-  var total = rivals.length + players.length, rank = currentRank(p), rs = rank + '.';
+  var total = rivals.length + players.length + netCars.length, rank = currentRank(p), rs = rank + '.';
   setFont(ctx, u * 11); var rw = ctx.measureText(rs).width;
   var lapStr = 'Tur ' + clamp(p.crossings, 1, TOTAL_LAPS) + '/' + TOTAL_LAPS;
   setFont(ctx, u * 4.6); var lw = ctx.measureText(lapStr).width;
@@ -2823,6 +2834,7 @@ function drawMinimap(p, u, x, y, S) {
   }
   var st = T.S[0]; circ(mx(st.x), my(st.z), u * 0.9, COL.focus);
   rivals.forEach(function (r) { circ(mx(r.x), my(r.z), u * 0.8, '#aab2bf'); });
+  netCars.forEach(function (nc) { if (nc.seen) { circ(mx(nc.x), my(nc.z), u * 1.3, '#fff'); circ(mx(nc.x), my(nc.z), u * 0.9, '#f5c518'); } });
   for (var k = players.length - 1; k >= 0; k--) {
     var o = players[k], me = o === p;
     circ(mx(o.x), my(o.z), u * (me ? 1.6 : 1.2), '#fff');
@@ -2875,7 +2887,7 @@ function drawViewHUD(p, v) {
     drawGauge(p, u, W - u * 16, H - u * 16, u * 13);
     drawNitro(p, u, W - u * 28, H - u * 33, u * 24);
   }
-  if (state === 'countdown') txtShadow(String(Math.ceil(cdT)), W / 2, H * 0.4, u * 24, COL.paper, 'center', 'middle');
+  if (state === 'countdown') txtShadow(NET.waitRemote ? 'Uzaktaki oyuncu hazırlanıyor…' : String(Math.ceil(cdT)), W / 2, H * 0.4, NET.waitRemote ? u * 6 : u * 24, COL.paper, 'center', 'middle');
   if (state === 'race' && raceT < 0.9) txtShadow('Başla!', W / 2, H * 0.4, u * 14, COL.focus, 'center', 'middle');
   if (state === 'countdown' && !isTouch) {
     var help = players.length === 1 ? 'Yön tuşları ya da W A S D, boşluk el freni, C kamera' : (p.id === 0 ? 'W A S D, boşluk el freni, C kamera' : 'Yön tuşları, nokta kamera');
@@ -2887,7 +2899,7 @@ function drawViewHUD(p, v) {
   }
   if (p.finished && state === 'race') {
     txtShadow(p.rank === 1 ? 'Birinci oldun!' : p.rank + '. oldun', W / 2, H * 0.36, u * 10, COL.focus, 'center', 'middle');
-    if (players.length > 1) txtShadow('Diğer oyuncu bekleniyor', W / 2, H * 0.45, u * 3.8, COL.paper, 'center', 'middle');
+    if (players.length > 1 || netCars.length) txtShadow('Diğer oyuncu bekleniyor', W / 2, H * 0.45, u * 3.8, COL.paper, 'center', 'middle');
   }
   var ct = camToast[p.id];
   if (ct && ct.t > 0) txtShadow('Kamera: ' + CAM_NAMES[p.camMode], W / 2, H * 0.2, u * 4, COL.paper, 'center', 'middle');
@@ -3082,7 +3094,7 @@ function drawHUD2DInner(dt) {
   var hint = isTouch ? 'Seçmek için dokun, değiştirmek için satırın sağına ya da soluna dokun' : 'Yukarı aşağı seç, sağ sol değiştir, OK onayla';
   if (isGarageLike()) { drawGarageUI(hint); return; }
   if (state === 'lobby') { drawLobbyTV(isTouch ? '' : 'Yarışı telefondan ya da kumandada OK ile başlatın'); return; }
-  if (state === 'padjoin') { drawMenuScreen("TV'ye bağlan", ['TV ekranındaki 4 haneli kodu yaz', NET.status || ' '], menuItems(), hint, 0.5); return; }
+  if (state === 'padjoin') { drawMenuScreen(NET.joinKind === 'remote' ? 'Uzaktan yarış' : "TV'ye bağlan", [NET.joinKind === 'remote' ? "Arkadaşının TV'sindeki 4 haneli kodu yaz" : 'TV ekranındaki 4 haneli kodu yaz', NET.status || ' '], menuItems(), hint, 0.5); return; }
   if (state === 'pad') {
     if (isPadRacing()) { drawPadController(); return; }
     var inf = NET.info || {};
@@ -3122,6 +3134,7 @@ var PEER_PREFIX = 'geceyarisi-tv-';
 function netAvailable() { return typeof window.Peer === 'function'; }
 function stopNet() {
   try { if (NET.hostConn) NET.hostConn.close(); } catch (e) {}
+  try { if (NET.remote) NET.remote.close(); } catch (e) {} NET.remote = null; NET.remoteWho = null; NET.inRemoteRace = false; NET.waitRemote = false;
   for (var i = 0; i < 2; i++) { try { if (NET.conns[i]) NET.conns[i].close(); } catch (e) {} NET.conns[i] = null; remoteIn[i] = null; if (NET.who) NET.who[i] = null; }
   try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
   NET.peer = null; NET.hostConn = null; NET.role = null; NET.playerSlots = null; NET.slot = -1; NET.padState = 'lobby';
@@ -3158,19 +3171,29 @@ function startHost() {
   peer.on('disconnected', function () { if (NET.peer === peer) { try { peer.reconnect(); } catch (e) {} } });
 }
 function hostAccept(conn) {
-  conn.on('open', function () {
-    var slot = -1;
-    for (var i = 0; i < 2; i++) if (!NET.conns[i] || !NET.conns[i].open) { slot = i; break; }
-    if (slot < 0) { try { conn.send({ t: 'full' }); } catch (e) {} setTimeout(function () { try { conn.close(); } catch (e) {} }, 400); return; }
-    conn.slot = slot; NET.conns[slot] = conn; remoteIn[slot] = null;
-    try { conn.send({ t: 'welcome', slot: slot }); } catch (e) {}
-    NET.lastKey = ''; beep(880, 0.12);
+  conn.on('data', function (d) {
+    if (d && d.t === 'hello' && conn.slot === undefined && conn !== NET.remote) {
+      if (d.kind === 'remote') {
+        if (remoteOpen()) { try { conn.send({ t: 'full' }); } catch (e) {} setTimeout(function () { try { conn.close(); } catch (e) {} }, 400); return; }
+        NET.remote = conn; NET.remoteWho = null; NET.remoteChoice = null;
+        try { conn.send({ t: 'welcome', slot: -1, remote: true }); } catch (e) {}
+        beep(880, 0.12); return;
+      }
+      var slot = -1;
+      for (var i = 0; i < 2; i++) if (!NET.conns[i] || !NET.conns[i].open) { slot = i; break; }
+      if (slot < 0) { try { conn.send({ t: 'full' }); } catch (e) {} setTimeout(function () { try { conn.close(); } catch (e) {} }, 400); return; }
+      conn.slot = slot; NET.conns[slot] = conn; remoteIn[slot] = null;
+      try { conn.send({ t: 'welcome', slot: slot }); } catch (e) {}
+      NET.lastKey = ''; beep(880, 0.12); return;
+    }
+    if (conn === NET.remote) { hostRemoteMsg(d); return; }
+    if (conn.slot !== undefined && NET.conns[conn.slot] === conn) hostMsg(conn.slot, d);
   });
-  conn.on('data', function (d) { if (conn.slot !== undefined && NET.conns[conn.slot] === conn) hostMsg(conn.slot, d); });
   conn.on('close', function () { hostDrop(conn); });
   conn.on('error', function () { hostDrop(conn); });
 }
 function hostDrop(conn) {
+  if (conn === NET.remote) { if (NET.remoteWho) NET.greet = { text: NET.remoteWho.name + ' ayrıldı', t: 2.5 }; NET.remote = null; NET.remoteWho = null; NET.waitRemote = false; netCars.forEach(function (nc) { nc.fin = true; }); beep(300, 0.2); return; }
   if (conn.slot !== undefined && NET.conns[conn.slot] === conn) { if (NET.who[conn.slot]) NET.greet = { text: NET.who[conn.slot].name + ' ayrıldı', t: 2.5 }; NET.conns[conn.slot] = null; remoteIn[conn.slot] = null; NET.who[conn.slot] = null; beep(300, 0.2); }
 }
 function connectedSlots() { var a = []; for (var i = 0; i < 2; i++) if (NET.conns[i] && NET.conns[i].open) a.push(i); return a; }
@@ -3188,11 +3211,13 @@ function hostMsg(slot, m) {
 }
 function hostStartRace() {
   var slots = connectedSlots();
-  if (!slots.length) { NET.status = 'Önce en az bir telefon bağlanmalı'; return; }
+  if (!slots.length) { NET.status = remoteOpen() ? "TV'de oynamak için bir telefonu da kumanda olarak bağla" : 'Önce en az bir telefon bağlanmalı'; return; }
   NET.playerSlots = slots; numPlayers = slots.length;
+  if (remoteOpen()) for (var i = 0; i < MODES.length; i++) if (MODES[i].id === 'race') modeIdx = i;
   startRace();
+  hostRemoteRaceStarted();
 }
-function hostToLobby() { toMenu(); state = 'lobby'; menu.focus = 0; NET.lastKey = ''; }
+function hostToLobby() { toMenu(); state = 'lobby'; menu.focus = 0; NET.lastKey = ''; remoteSend({ t: 'rlobby' }); }
 function hostStateName() {
   if (state === 'countdown' || state === 'race' || state === 'pause') return state;
   if (state === 'results') return resultsT > 1.2 ? 'results' : 'race';
@@ -3228,9 +3253,9 @@ function padConnect() {
     if (NET.peer !== myPeer) return;
     var conn = peer.connect(PEER_PREFIX + code, { reliable: true });
     NET.hostConn = conn;
-    conn.on('open', function () { NET.status = 'Bağlandı'; try { conn.send({ t: 'hello' }); } catch (e) {} });
+    conn.on('open', function () { NET.status = 'Bağlandı'; try { conn.send({ t: 'hello', kind: NET.joinKind === 'remote' ? 'remote' : 'pad' }); } catch (e) {} });
     conn.on('data', padMsg);
-    conn.on('close', function () { if (NET.hostConn === conn) { NET.status = 'TV ile bağlantı koptu. Tekrar bağlanabilirsin.'; state = 'padjoin'; NET.padState = 'lobby'; menu.focus = 1; disposeGarage(); } });
+    conn.on('close', function () { if (NET.hostConn === conn && NET.inRemoteRace) { NET.hostConn = null; flash('TV ile bağlantı koptu'); return; } if (NET.hostConn === conn) { NET.status = 'TV ile bağlantı koptu. Tekrar bağlanabilirsin.'; state = 'padjoin'; NET.padState = 'lobby'; menu.focus = 1; disposeGarage(); } });
   });
   peer.on('error', function (err) {
     if (NET.peer !== myPeer) return;
@@ -3242,6 +3267,7 @@ function padLeave() { stopNet(); disposeGarage(); state = 'padjoin'; menu.focus 
 function padSend(m) { if (NET.hostConn && NET.hostConn.open) { try { NET.hostConn.send(m); } catch (e) {} } }
 function padMsg(m) {
   if (!m || typeof m !== 'object') return;
+  if (remoteMsg(m)) return;
   if (m.t === 'full') { NET.status = 'TV dolu: iki telefon zaten bağlı'; return; }
   if (m.t === 'welcome') {
     NET.slot = m.slot; state = 'pad'; NET.padState = 'lobby'; gIdx = 0; menu.focus = 0; menu.scroll = 0; menu.userScroll = false;
@@ -3249,6 +3275,7 @@ function padMsg(m) {
     return;
   }
   if (m.t === 'st') {
+    if (NET.joinKind === 'remote') return;
     var prev = NET.padState;
     if (m.s === 'results' && m.rid && m.rid !== NET.lastRid) { NET.lastRid = m.rid; var pp = profileOf(0); if (pp && m.earn > 0) { pp.money += m.earn; pp.stats.races++; persist(); flash('+' + fmtTL(m.earn) + ' kazandın'); } }
     NET.padState = m.s; NET.info = m;
@@ -3264,7 +3291,9 @@ function padMsg(m) {
 }
 var padLastChoice = '', padInT = 0;
 function netUpdate(dt) {
+  remoteUpdate(dt);
   if (NET.role === 'host') {
+    hostRemoteUpdate(dt);
     NET.sendT -= dt;
     var key = hostStateName() + (state === 'countdown' ? Math.ceil(cdT) : '') + connectedSlots().join('');
     if (NET.sendT <= 0 || key !== NET.lastKey) { NET.sendT = state === 'race' ? 0.12 : 0.3; NET.lastKey = key; netBroadcast(); }
@@ -3310,6 +3339,7 @@ function drawLobbyTV(hint) {
     txt(on ? (who ? who.name : (s + 1) + '. oyuncu') + (st && st.races ? '  ·  ' + st.races + ' yarış, ' + (st.wins || 0) + ' galibiyet' : '') : (s + 1) + '. oyuncu bekleniyor…', rx + u * 16, y + u * 6.5, u * 4.6, COL.paper, 'left', 'middle');
     if (on) txt(CAR_MODELS[ch.model].name + ' · ' + PAINTS[ch.paint].n + ' · ' + ch.plate, rx + u * 16, y + u * 11.3, u * 3.4, COL.blueSoft, 'left', 'middle');
   }
+  txtShadow(remoteOpen() ? 'Uzaktan: ' + (NET.remoteWho ? NET.remoteWho.name : 'bağlandı') + (NET.remoteChoice ? ' · ' + CAR_MODELS[NET.remoteChoice.model].name : '') : 'Uzaktan yarış için arkadaşın da bu kodu kullanabilir', rx, u * 44.5, u * 3.5, remoteOpen() ? COL.focus : COL.blueSoft, 'left', 'middle');
   drawItems(menuItems(), rx, u * 48, colW, H - u * 60, u);
   if (hint) txtShadow(hint, W / 2, H - u * 3, u * 3.3, COL.paper, 'center', 'alphabetic');
 }
@@ -3389,6 +3419,137 @@ function drawGreet(u) {
 }
 
 // ======================================================================
+// UZAKTAN YARIŞ: bir cihaz TV'de (ev sahibi), diğeri kendi ekranında oynar.
+// Her cihaz kendi arabasını kendisi sürer, konumlar internetten paylaşılır.
+// ======================================================================
+var netCars = [];
+NET.remote = null; NET.remoteWho = null; NET.remoteChoice = null; NET.inRemoteRace = false; NET.waitRemote = false; NET.standings = null; NET.joinKind = 'pad';
+function nameTagSprite(name) {
+  var c = mkCanvas(256, 64), g = c.getContext('2d');
+  g.fillStyle = 'rgba(10,14,22,.75)'; rr(g, 4, 8, 248, 48, 14); g.fill();
+  setFont(g, 30); g.fillStyle = '#f5c518'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(name, 128, 33);
+  var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: canvasTex(c, false), transparent: true, depthWrite: false }));
+  sp.scale.set(3.2, 0.8, 1); sp.position.y = 2.3;
+  return sp;
+}
+function netCarFrom(id, name, choice) {
+  var ch = sanitizeChoice(JSON.parse(JSON.stringify(choice || defaultChoice(0))));
+  var m = buildCar(ch); m.add(nameTagSprite(name)); m.visible = false; scene.add(m);
+  return { id: id, name: name, choice: ch, mesh: m, x: 0, y: 0, z: 0, psi: 0, u: 0, tx: 0, ty: 0, tz: 0, tpsi: 0, prog: 0, cr: 0, fin: false, ft: null, seen: false, lastT: 0 };
+}
+function clearNetCars() { netCars.forEach(function (nc) { disposeCar(nc.mesh); }); netCars = []; }
+function netCarState(nc, s) {
+  nc.tx = +s.x; nc.ty = +s.y; nc.tz = +s.z; nc.tpsi = +s.psi; nc.u = +s.u || 0; nc.prog = +s.prog || 0; nc.cr = s.cr | 0; nc.fin = !!s.fin; nc.ft = s.ft === null || s.ft === undefined ? null : +s.ft;
+  nc.lastT = Date.now();
+  if (!nc.seen) { nc.x = nc.tx; nc.y = nc.ty; nc.z = nc.tz; nc.psi = nc.tpsi; nc.seen = true; }
+}
+function netCarsAnimate(dt) {
+  netCars.forEach(function (nc) {
+    if (!nc.seen) { nc.mesh.visible = false; return; }
+    nc.mesh.visible = true;
+    var age = Math.min(0.35, (Date.now() - nc.lastT) / 1000);
+    var ex = nc.tx + Math.sin(nc.tpsi) * nc.u * age, ez = nc.tz + Math.cos(nc.tpsi) * nc.u * age, k = 1 - Math.exp(-dt * 12);
+    nc.x = lerp(nc.x, ex, k); nc.z = lerp(nc.z, ez, k); nc.y = lerp(nc.y, nc.ty, k); nc.psi += wrapAngle(nc.tpsi - nc.psi) * k;
+    nc.mesh.position.set(nc.x, nc.y, nc.z); nc.mesh.rotation.order = 'YXZ'; nc.mesh.rotation.y = nc.psi;
+    updateCarVisual(nc.mesh, dt, nc.u, 0, false);
+  });
+}
+function netCarTotal(nc) { return (nc.cr - 1) * TRACK.len + nc.prog; }
+function carStateMsg(p) {
+  return { x: Math.round(p.x * 100) / 100, y: Math.round(p.y * 100) / 100, z: Math.round(p.z * 100) / 100, psi: Math.round(p.psi * 1000) / 1000, u: Math.round(p.u * 10) / 10,
+    prog: Math.round(p.prog * 10) / 10, cr: p.crossings, fin: !!p.finished, ft: p.finishTime === null || p.finishTime === undefined ? null : Math.round(p.finishTime * 100) / 100 };
+}
+function remoteOpen() { return !!(NET.remote && NET.remote.open); }
+function remoteSend(m) { if (remoteOpen()) { try { NET.remote.send(m); } catch (e) {} } }
+
+// ---------------- Ev sahibi (TV) tarafı ----------------
+function hostRemoteMsg(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'who') {
+    var name = String(m.name || '').replace(/[<>]/g, '').trim().slice(0, 14) || 'Uzaktaki oyuncu';
+    var first = !NET.remoteWho;
+    NET.remoteWho = { name: name, uid: String(m.uid || '').slice(0, 24) };
+    if (first) { NET.greet = { text: name + ' uzaktan bağlandı!', t: 3.5 }; beep(660, 0.08); setTimeout(function () { beep(990, 0.12); }, 90); }
+    return;
+  }
+  if (m.t === 'choice' && m.ch) { NET.remoteChoice = sanitizeChoice(m.ch); return; }
+  if (m.t === 'start') { if (state === 'lobby' || (state === 'results' && resultsT > 1.2)) hostStartRace(); return; }
+  if (m.t === 'rready') { NET.waitRemote = false; return; }
+  if (m.t === 'rs' && netCars[0]) { netCarState(netCars[0], m); return; }
+  if (m.t === 'lobby') { if (state !== 'lobby') hostToLobby(); return; }
+}
+function hostRemoteRaceStarted() {
+  clearNetCars(); NET.standings = null;
+  if (!remoteOpen()) { NET.waitRemote = false; return; }
+  netCars.push(netCarFrom('R', NET.remoteWho ? NET.remoteWho.name : 'Uzaktaki oyuncu', NET.remoteChoice));
+  NET.waitRemote = true; NET.waitT = 0;
+  remoteSend({ t: 'rstart', track: trackIdx, laps: TOTAL_LAPS,
+    cars: players.map(function (p) { return { id: p.id, name: playerName(p), ch: p.choice }; }) });
+}
+function hostRemoteUpdate(dt) {
+  if (!remoteOpen()) return;
+  if (NET.waitRemote && state === 'countdown') { NET.waitT = (NET.waitT || 0) + dt; cdT = 3; lastBeep = 4; if (NET.waitT > 20) NET.waitRemote = false; }
+  NET.rwT = (NET.rwT || 0) - dt;
+  if ((state === 'countdown' || state === 'race' || state === 'results') && NET.rwT <= 0) {
+    NET.rwT = 0.1;
+    remoteSend({ t: 'rw', cars: players.map(function (p) { var s = carStateMsg(p); s.id = p.id; return s; }) });
+  }
+}
+function computeStandings() {
+  var list = [];
+  players.forEach(function (p) { list.push({ name: playerName(p), ft: p.finishTime, tot: totalProgress(p), ref: p }); });
+  netCars.forEach(function (nc) { list.push({ name: nc.name, ft: nc.fin ? nc.ft : null, tot: netCarTotal(nc), ref: nc }); });
+  list.sort(function (a, b) { if (a.ft !== null && b.ft !== null) return a.ft - b.ft; if (a.ft !== null) return -1; if (b.ft !== null) return 1; return b.tot - a.tot; });
+  list.forEach(function (e, i) { e.rank = i + 1; if (e.ref && e.ref.id !== undefined && players.indexOf(e.ref) >= 0) e.ref.rank = i + 1; });
+  return list.map(function (e) { return { name: e.name, ft: e.ft, rank: e.rank }; });
+}
+
+// ---------------- Uzaktaki oyuncu (kendi ekranında) ----------------
+function openRemoteJoin() { initAudio(); NET.joinKind = 'remote'; state = 'padjoin'; menu.focus = 0; menu.scroll = 0; NET.status = ''; guardBack(); }
+function remoteStartMsg(m) {
+  if (NET.inRemoteRace) return;
+  var go = function () {
+    disposeGarage();
+    NET.inRemoteRace = true; NET.standings = null;
+    for (var i = 0; i < MODES.length; i++) if (MODES[i].id === 'race') modeIdx = i;
+    numPlayers = 1;
+    startRace();
+    TOTAL_LAPS = clamp(m.laps | 0, 1, 9) || 3;
+    clearNetCars();
+    (m.cars || []).forEach(function (c) { netCars.push(netCarFrom(c.id, String(c.name || 'TV oyuncusu').slice(0, 14), c.ch)); });
+    padSend({ t: 'rready' });
+  };
+  var ti = m.track | 0;
+  if (ti >= 0 && ti < TRACKS.length && ti !== trackIdx) { trackIdx = ti; THEME = TRACKS[trackIdx]; rebuildWorld(go); }
+  else go();
+}
+function remoteMsg(m) {
+  if (m.t === 'rstart') { remoteStartMsg(m); return true; }
+  if (m.t === 'rw') { (m.cars || []).forEach(function (s) { for (var i = 0; i < netCars.length; i++) if (netCars[i].id === s.id) netCarState(netCars[i], s); }); return true; }
+  if (m.t === 'rres') { NET.standings = m.list || []; if (NET.inRemoteRace && state !== 'results') { var me = players[0], nm = playerName(me); NET.standings.forEach(function (e) { if (e.you) me.rank = e.rank; }); endRace(); } return true; }
+  if (m.t === 'rlobby') { remoteBackToLobby(); return true; }
+  return false;
+}
+function remoteBackToLobby() {
+  if (!NET.inRemoteRace && state === 'pad') return;
+  NET.inRemoteRace = false; NET.standings = null;
+  clearNetCars();
+  players.forEach(function (p) { disposeCar(p.mesh); }); players = [];
+  state = 'pad'; NET.padState = 'lobby'; gIdx = 0; menu.focus = 0; menu.scroll = 0; menu.userScroll = false;
+}
+function remoteUpdate(dt) {
+  if (!NET.inRemoteRace || !players[0]) return;
+  NET.rsT = (NET.rsT || 0) - dt;
+  if (NET.rsT <= 0 && (state === 'countdown' || state === 'race' || state === 'results')) { NET.rsT = 0.1; var s = carStateMsg(players[0]); s.t = 'rs'; padSend(s); }
+}
+function remoteResults() {
+  var list = NET.standings || computeStandings(), lines = [];
+  var win = list[0];
+  list.forEach(function (e) { lines.push(e.rank + '. ' + e.name + '   ' + (e.ft !== null && e.ft !== undefined ? fmt(e.ft) : 'bitiremedi')); });
+  return { title: win ? win.name + ' kazandı!' : 'Yarış bitti', lines: lines.slice(0, 4) };
+}
+
+// ======================================================================
 // MENÜ SEÇENEKLERİ, GİRDİLER, DÖNGÜ, BAŞLATMA
 // ======================================================================
 var DIFF_NAMES = ['kolay', 'normal', 'zor'];
@@ -3425,7 +3586,8 @@ function menuItems() {
   if (state === 'menu') return [
     { t: MODES[modeIdx].id === 'race' ? 'Yarışa başla' : (MODES[modeIdx].id === 'drift' ? 'Drift başlat' : 'Kaçışı başlat'), a: function () { NET.playerSlots = null; startRace(); } },
     { t: 'Mod: ' + MODES[modeIdx].name, toggle: true, arrows: true, a: function (d) { modeIdx = cyc(modeIdx, MODES.length, d); } },
-    isTouch ? { t: "TV'ye bağlan (telefon kumanda)", a: openPadJoin } : { t: 'Telefonla oyna (TV ekranı)', a: startHost },
+    isTouch ? { t: "TV'ye bağlan (telefon kumanda)", a: function () { NET.joinKind = 'pad'; openPadJoin(); } } : { t: 'Telefonla oyna (TV ekranı)', a: startHost },
+    { t: 'Uzaktan yarış (kendi ekranımda)', a: openRemoteJoin },
     { t: 'Garaj ve mağaza', a: openGarage },
     { t: 'Profil: ' + (profileOf(0) ? profileOf(0).name + ' (' + fmtTL(profileOf(0).money) + ')' : '-'), a: openProfiles },
     { t: 'Oyuncu: ' + numPlayers + ' kişi', toggle: true, a: function () { numPlayers = numPlayers === 1 ? 2 : 1; } },
@@ -3509,6 +3671,7 @@ function menuItems() {
     { t: 'Yeniden başla', a: NET.role === 'host' ? hostStartRace : startRace },
     NET.role === 'host' ? { t: 'Lobiye dön', a: hostToLobby } : { t: 'Ana menü', a: toMenu }
   ];
+  if (state === 'results' && resultsT > 1.2 && NET.inRemoteRace) return [{ t: 'Tekrar yarış', a: function () { remoteBackToLobby(); padSend({ t: 'start' }); } }, { t: 'Lobiye dön (araba değiştir)', a: function () { remoteBackToLobby(); padSend({ t: 'lobby' }); } }];
   if (state === 'results' && resultsT > 1.2) return NET.role === 'host'
     ? [{ t: 'Tekrar yarış', a: hostStartRace }, { t: 'Lobiye dön', a: hostToLobby }]
     : [{ t: 'Tekrar yarış', a: startRace }, { t: 'Ana menü', a: toMenu }];
@@ -3523,7 +3686,7 @@ function goBack() {
   if (state === 'padjoin') { stopNet(); backToMenu(1); return; }
   if (state === 'pad') { if (NET.padState === 'lobby') padLeave(); else if (NET.padState === 'pause') padSend({ t: 'resume' }); else if (isPadRacing()) padSend({ t: 'pause' }); return; }
   if (state === 'pause') resumeGame();
-  else if (state === 'results') toMenu();
+  else if (state === 'results') { if (NET.inRemoteRace) { remoteBackToLobby(); padSend({ t: 'lobby' }); } else toMenu(); }
   else if (state === 'settings') backToMenu(8);
   else if (state === 'profiles') backToMenu(4);
   else if (state === 'garage') backToMenu(1);
@@ -3797,6 +3960,7 @@ function frame(now) {
   netUpdate(dt);
   if (state === 'pad') { render3D(dt); drawHUD2D(dt); return; }
   if (world.userData.update) world.userData.update(dt);
+  netCarsAnimate(dt);
   if (state !== 'pause' && state !== 'garage') updateRace(dt);
   updateCarMeshes(dt);
   render3D(dt);
@@ -3827,7 +3991,7 @@ applySavedSettings();
 applyQuality();
 requestAnimationFrame(frame);
 setTimeout(runLoad, 30);
-window.__game = { playerName: function (p) { return playerName(p); }, endRaceNow: function () { endRace(); }, tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
+window.__game = { remote: { openRemoteJoin: openRemoteJoin, get netCars() { return netCars; }, get NET() { return NET; } }, playerName: function (p) { return playerName(p); }, endRaceNow: function () { endRace(); }, tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
 })();
 
 </script>
