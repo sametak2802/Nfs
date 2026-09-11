@@ -387,12 +387,12 @@ function buildTrackData() {
     var ks = 0;
     for (var j = -6; j <= 6; j++) ks += Math.abs(S[(i + j + N) % N].k);
     ks /= 13;
-    vmax.push(Math.min(75, Math.sqrt(1.0 * G / Math.max(ks, 1e-4))));
+    vmax.push(Math.min(72, Math.sqrt(16 / Math.max(ks, 1e-4))));
   }
   for (var pass = 0; pass < 2; pass++) {
     for (i = N - 1; i >= 0; i--) {
       var nx = vmax[(i + 1) % N];
-      vmax[i] = Math.min(vmax[i], Math.sqrt(nx * nx + 2 * 8.5 * ds));
+      vmax[i] = Math.min(vmax[i], Math.sqrt(nx * nx + 2 * 11 * ds));
     }
   }
   // mini harita noktaları
@@ -666,21 +666,21 @@ function makeCityEnv() {
 // x: arkadan öne (0..L), y: yukarı, z: yan
 // ======================================================================
 var CAR_MODELS = {
-  kaiser: { name: 'Kaiser S', type: 'Spor sedan', L: 4.72, W: 1.86, wb: 2.85, fo: 0.9, r: 0.345, clr: 0.15, nose: 0.68, hood: 0.95, belt: 1.0,
-    cowl: 3.0, roofF: 2.3, roofR: 1.05, roofH: 1.43, deckX: 0.62, deck: 1.01, tail: 0.98, gw: 0.8,
-    power: 245, mass: 1450, grip: 1.05, drag: 0.34, drive: 'rwd', lightBar: true, exhaust: 2 },
-  ronin: { name: 'Ronin R4', type: 'Ralli sedanı', L: 4.5, W: 1.82, wb: 2.64, fo: 0.92, r: 0.335, clr: 0.18, nose: 0.72, hood: 0.99, belt: 1.02,
-    cowl: 2.88, roofF: 2.2, roofR: 0.96, roofH: 1.47, deckX: 0.6, deck: 1.03, tail: 1.0, gw: 0.8,
-    power: 235, mass: 1400, grip: 1.07, drag: 0.35, drive: 'awd', scoop: true, exhaust: 1 },
-  kaze: { name: 'Kaze GT', type: 'Uzun burunlu coupe', L: 4.52, W: 1.84, wb: 2.55, fo: 1.0, r: 0.345, clr: 0.13, nose: 0.6, hood: 0.86, belt: 0.93,
-    cowl: 2.55, roofF: 1.95, roofR: 0.98, roofH: 1.28, deckX: 0.28, deck: 0.96, tail: 0.94, gw: 0.76,
-    power: 250, mass: 1430, grip: 1.05, drag: 0.33, drive: 'rwd', popup: false, exhaust: 2 },
-  vento: { name: 'Vento RS', type: 'Hot hatch', L: 4.25, W: 1.8, wb: 2.62, fo: 0.88, r: 0.335, clr: 0.15, nose: 0.72, hood: 0.97, belt: 1.0,
-    cowl: 2.95, roofF: 2.35, roofR: 0.5, roofH: 1.46, deckX: 0.16, deck: 1.02, tail: 1.0, gw: 0.8,
-    power: 228, mass: 1360, grip: 1.06, drag: 0.34, drive: 'fwd', exhaust: 2 },
-  argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.85, W: 1.94, wb: 2.78, fo: 0.95, r: 0.355, clr: 0.14, nose: 0.74, hood: 0.98, belt: 1.0,
-    cowl: 2.62, roofF: 2.0, roofR: 1.12, roofH: 1.34, deckX: 0.62, deck: 0.99, tail: 0.97, gw: 0.76,
-    power: 262, mass: 1510, grip: 1.04, drag: 0.35, drive: 'rwd', stripes: true, exhaust: 2 }
+  kaiser: { name: 'Kaiser S', type: 'Spor sedan', L: 4.75, W: 1.9, wb: 2.85, fo: 0.9, r: 0.37, clr: 0.12, nose: 0.64, hood: 0.9, belt: 0.95,
+    cowl: 2.95, roofF: 2.25, roofR: 1.1, roofH: 1.36, deckX: 0.55, deck: 0.97, tail: 0.95, gw: 0.78,
+    power: 246, mass: 1450, grip: 1.05, drag: 0.340, drive: 'rwd', lightBar: true, exhaust: 2 },
+  ronin: { name: 'Ronin R4', type: 'Ralli sedanı', L: 4.55, W: 1.9, wb: 2.65, fo: 0.92, r: 0.36, clr: 0.15, nose: 0.68, hood: 0.95, belt: 0.98,
+    cowl: 2.9, roofF: 2.25, roofR: 1.0, roofH: 1.42, deckX: 0.55, deck: 1.0, tail: 0.98, gw: 0.78,
+    power: 238, mass: 1400, grip: 1.05, drag: 0.328, drive: 'awd', scoop: true, exhaust: 1 },
+  kaze: { name: 'Kaze GT', type: 'Uzun burunlu coupe', L: 4.55, W: 1.9, wb: 2.55, fo: 1.0, r: 0.355, clr: 0.11, nose: 0.62, hood: 0.86, belt: 0.9,
+    cowl: 2.5, roofF: 1.9, roofR: 1.0, roofH: 1.22, deckX: 0.25, deck: 0.92, tail: 0.9, gw: 0.74,
+    power: 243, mass: 1430, grip: 1.05, drag: 0.335, drive: 'rwd', popup: false, exhaust: 2 },
+  vento: { name: 'Vento RS', type: 'Hot hatch', L: 4.3, W: 1.86, wb: 2.64, fo: 0.86, r: 0.36, clr: 0.13, nose: 0.68, hood: 0.92, belt: 0.96,
+    cowl: 2.95, roofF: 2.35, roofR: 0.55, roofH: 1.4, deckX: 0.16, deck: 0.98, tail: 0.96, gw: 0.78,
+    power: 231, mass: 1360, grip: 1.05, drag: 0.319, drive: 'fwd', exhaust: 2 },
+  argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.85, W: 1.98, wb: 2.8, fo: 0.95, r: 0.375, clr: 0.12, nose: 0.7, hood: 0.94, belt: 0.96,
+    cowl: 2.55, roofF: 1.95, roofR: 1.15, roofH: 1.28, deckX: 0.62, deck: 0.96, tail: 0.95, gw: 0.74,
+    power: 257, mass: 1510, grip: 1.05, drag: 0.354, drive: 'rwd', stripes: true, exhaust: 2 }
 };
 var MODEL_KEYS = ['kaiser', 'ronin', 'kaze', 'vento', 'argo'];
 var PAINTS = [
@@ -805,7 +805,7 @@ function beamBetween(x1, y1, x2, y2, z, thick, wide, mat) {
 }
 
 function buildWheel(s, rimType, rimMat, mats) {
-  var r = s.r, tw = 0.24, rr = r * 0.7;
+  var r = s.r, tw = 0.27, rr = r * 0.74;
   var wheel = new THREE.Group(), spin = new THREE.Group(), face = new THREE.Group();
   wheel.add(face); face.add(spin);
   var prof = [new THREE.Vector2(rr * 0.9, -tw / 2), new THREE.Vector2(r - 0.035, -tw / 2), new THREE.Vector2(r, -tw / 2 + 0.045),
@@ -862,7 +862,7 @@ var sharedCarMats = null;
 function carMats() {
   if (sharedCarMats) return sharedCarMats;
   sharedCarMats = {
-    tire: new THREE.MeshStandardMaterial({ color: 0x121212, roughness: 0.95, envMapIntensity: 0.15 }),
+    tire: new THREE.MeshStandardMaterial({ color: 0x0a0a0a, roughness: 0.92, envMapIntensity: 0.1 }),
     dark: new THREE.MeshStandardMaterial({ color: 0x0c0c0d, roughness: 0.8, side: THREE.DoubleSide }),
     trim: new THREE.MeshStandardMaterial({ color: 0x111214, roughness: 0.55, metalness: 0.2 }),
     carbon: new THREE.MeshStandardMaterial({ color: 0x1b1c1f, roughness: 0.35, metalness: 0.5 }),
@@ -872,7 +872,8 @@ function carMats() {
     head: new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff2dc, emissiveIntensity: 2.4, roughness: 0.2 }),
     interior: new THREE.MeshStandardMaterial({ color: 0x0a0a0b, roughness: 0.9 }),
     grille: new THREE.MeshStandardMaterial({ map: TEX.grille, roughness: 0.6, metalness: 0.3 }),
-    stripe: new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.3, metalness: 0.2 })
+    stripe: new THREE.MeshStandardMaterial({ color: 0xf2f2ee, roughness: 0.3, metalness: 0.2 }),
+    gloss: new THREE.MeshStandardMaterial({ color: 0x07080a, roughness: 0.12, metalness: 0.4 })
   };
   return sharedCarMats;
 }
@@ -922,7 +923,7 @@ function bodyHalfW(s, x) {
   var w = s.W / 2, tf = clamp((x - (s.L - 0.42)) / 0.42, 0, 1), tr = clamp((0.32 - x) / 0.32, 0, 1);
   return w * (1 - 0.13 * Math.pow(tf, 2.4) - 0.08 * Math.pow(tr, 2.4));
 }
-var BODY_N = 4.2;
+var BODY_N = 5.0;
 function sideZ(s, prof, x, y) {
   var top = bodyTop(s, prof, x), bot = bodyBot(s, x), mid = (top + bot) / 2, hh = (top - bot) / 2, w = bodyHalfW(s, x);
   var yy = clamp((y - mid) / hh, -1, 1);
@@ -944,16 +945,17 @@ function loftBody(s, prof, gw) {
   [s.L - s.fo, s.L - s.fo - s.wb].forEach(function (xa) { for (var k = -8; k <= 8; k++) xs.push(xa + R * k / 8 * 0.999); xs.push(xa - R - 0.004); xs.push(xa + R + 0.004); });
   xs.sort(function (a, b) { return a - b; });
   xs = xs.filter(function (v, k) { return k === 0 || v - xs[k - 1] > 0.003; });
-  var ring = 28, pos = [], idx = [], col = [];
+  var ring = 28, pos = [], idx = [], col = [], cut = [];
   for (i = 0; i < xs.length; i++) {
     var x = xs[i], top = bodyTop(s, prof, x), bot = bodyBot(s, x), mid = (top + bot) / 2, hh = (top - bot) / 2, w = bodyHalfW(s, x), ay = archY(s, x);
     for (j = 0; j < ring; j++) {
       var a = j / ring * Math.PI * 2;
       var yy = spe(Math.sin(a), BODY_N), zz = spe(Math.cos(a), BODY_N);
       var y = mid + hh * yy, z = w * zz * (1 - 0.07 * Math.max(0, yy));
-      if (ay > 0 && yy < 0.2 && Math.abs(zz) > 0.5) y = Math.max(y, Math.min(ay, top - 0.05));
       pos.push(x, y, z);
-      var cabin = x > s.deckX + 0.02 && x < s.cowl - 0.01 && Math.abs(z) < gw / 2 * 0.95 && yy > 0.3;
+      if (ay > 0 && yy < 0.1 && Math.abs(zz) > 0.5) y = Math.max(y, Math.min(ay, top - 0.1));
+      cut.push(x, y, z);
+      var cabin = x > s.deckX + (s.roofR - s.deckX) * 0.45 && x < s.roofF + (s.cowl - s.roofF) * 0.4 && Math.abs(z) < gw / 2 * 0.95 && yy > 0.3;
       if (cabin) col.push(0.04, 0.04, 0.045); else col.push(1, 1, 1);
     }
   }
@@ -965,16 +967,17 @@ function loftBody(s, prof, gw) {
   [0, xs.length - 1].forEach(function (si) {
     var base = pos.length / 3, cx = 0, cy = 0;
     for (j = 0; j < ring; j++) { cy += pos[(si * ring + j) * 3 + 1]; }
-    pos.push(xs[si], cy / ring, 0);
+    pos.push(xs[si], cy / ring, 0); cut.push(xs[si], cy / ring, 0);
     col.push(1, 1, 1);
-    for (j = 0; j < ring; j++) { var o = (si * ring + j) * 3; pos.push(pos[o], pos[o + 1], pos[o + 2]); col.push(1, 1, 1); }
+    for (j = 0; j < ring; j++) { var o = (si * ring + j) * 3; pos.push(pos[o], pos[o + 1], pos[o + 2]); cut.push(cut[o], cut[o + 1], cut[o + 2]); col.push(1, 1, 1); }
     for (j = 0; j < ring; j++) { if (si !== 0) idx.push(base, base + 1 + (j + 1) % ring, base + 1 + j); else idx.push(base, base + 1 + j, base + 1 + (j + 1) % ring); }
   });
   var g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
   g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
   g.setIndex(idx);
-  g.computeVertexNormals();
+  g.computeVertexNormals();                       // normaller kesilmemiş gövdeden: kaput üstü temiz kalır
+  g.setAttribute('position', new THREE.Float32BufferAttribute(cut, 3));
   return g;
 }
 function loftGreenhouse(s, prof, gw) {
@@ -1047,12 +1050,23 @@ function buildCar(ch) {
     body.add(box(0.2, 0.1, 0.16, paint, s.roofF - 0.02, s.belt + 0.02, sd * (gw / 2 * 0.95 + 0.07)));
     body.add(box(0.1, 0.03, 0.08, M.trim, s.roofF - 0.02, s.belt - 0.03, sd * (gw / 2 * 0.95)));
     // farlar
-    var hx = L - 0.05, hy = bodyTop(s, prof, hx), hslope = Math.atan2(bodyTop(s, prof, hx + 0.03) - bodyTop(s, prof, hx - 0.03), 0.06);
-    var hz = sd * (bodyHalfW(s, hx) - 0.3);
-    body.add(box(0.16, 0.11, 0.44, M.trim, hx, hy - 0.05, hz, hslope));
-    body.add(box(0.13, 0.08, 0.38, M.head, hx + 0.02, hy - 0.045, hz, hslope));
+    var ftop = bodyTop(s, prof, L), fwh = bodyHalfW(s, L);
+    body.add(box(0.07, 0.08, 0.5, M.gloss, L - 0.025, ftop - 0.05, sd * (fwh - 0.3)));
+    body.add(box(0.03, 0.016, 0.48, M.head, L - 0.004, ftop - 0.018, sd * (fwh - 0.3)));
+    [0.42, 0.2].forEach(function (off) {
+      var pj = new THREE.CylinderGeometry(0.03, 0.03, 0.03, 12); pj.rotateZ(Math.PI / 2);
+      var pm = new THREE.Mesh(pj, M.head); pm.position.set(L - 0.005, ftop - 0.058, sd * (fwh - off)); body.add(pm);
+    });
+    // çamurluk kasları
+    [L - s.fo, L - s.fo - s.wb].forEach(function (xa) {
+      var fl = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.09, 0.045, 6, 20, Math.PI), paint);
+      var fsy = Math.min(1, (bodyTop(s, prof, xa) - 0.035 - s.r) / (s.r + 0.09));
+      fl.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.05)); fl.scale.set(1, fsy, 1.5); body.add(fl);
+      var lip = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.055, 0.018, 5, 20, Math.PI), M.trim);
+      lip.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.02)); lip.scale.y = fsy; body.add(lip);
+    });
     // stoplar
-    body.add(box(0.05, 0.1, 0.4, tail, 0.0, s.tail - 0.24, sd * (bodyHalfW(s, 0) - 0.3)));
+    body.add(box(0.05, 0.085, 0.36, tail, 0.0, s.tail - 0.21, sd * (bodyHalfW(s, 0) - 0.27)));
     // kapı çizgisi ve kolu
     for (var dq = 0; dq < 6; dq++) { var yd = s.clr + 0.12 + (bodyTop(s, prof, xd) - 0.22 - s.clr - 0.12) * (dq + 0.5) / 6; body.add(box(0.01, (bodyTop(s, prof, xd) - 0.34 - s.clr) / 6 + 0.01, 0.01, M.trim, xd, yd, zs(xd, yd))); }
     body.add(box(0.15, 0.025, 0.012, M.chrome, xd - 0.25, bodyTop(s, prof, xd - 0.25) - 0.2, zs(xd - 0.25, bodyTop(s, prof, xd - 0.25) - 0.2)));
@@ -1069,12 +1083,15 @@ function buildCar(ch) {
   [-1, 1].forEach(function (sd) { body.add(box(0.12, 0.22, 0.34, M.interior, s.roofR + (s.roofF - s.roofR) * 0.35, Math.min(s.belt + 0.2, s.roofH - 0.26), sd * 0.34)); });
   // ön panjur ve tampon
   var ft = bodyTop(s, prof, L), fb = bodyBot(s, L), fh = ft - fb, fw = bodyHalfW(s, L) * 2;
-  body.add(box(0.04, fh * 0.28, fw * 0.46, M.grille, L - 0.018, fb + fh * 0.64, 0));
-  body.add(box(0.04, fh * 0.24, fw * 0.7, M.grille, L - 0.018, fb + fh * 0.2, 0));
-  body.add(box(0.04, 0.018, fw * 0.5, M.chrome, L - 0.005, fb + fh * 0.82, 0));
+  body.add(box(0.03, fh * 0.16, fw * 0.36, M.grille, L - 0.012, fb + fh * 0.66, 0));
+  body.add(box(0.03, fh * 0.3, fw * 0.62, M.grille, L - 0.012, fb + fh * 0.24, 0));
+  [-1, 1].forEach(function (sd) { body.add(box(0.03, fh * 0.26, 0.2, M.grille, L - 0.012, fb + fh * 0.26, sd * (fw / 2 - 0.2))); });
+  body.add(box(0.14, 0.02, fw * 0.92, M.gloss, L - 0.05, fb - 0.008, 0));
   // arka
   body.add(box(0.06, 0.12, W * 0.7, M.trim, 0.03, s.clr + 0.1, 0));
-  if (s.lightBar) body.add(box(0.03, 0.03, W * 0.6, tail, -0.01, s.tail - 0.2, 0));
+  body.add(box(0.03, 0.022, W * 0.62, tail, -0.008, s.tail - 0.19, 0));
+  body.add(box(0.03, 0.07, W * 0.5, M.gloss, -0.004, s.tail - 0.24, 0));
+  body.add(box(0.2, 0.05, 0.03, M.trim, s.roofR + 0.18, s.roofH + 0.025, 0, 0.3));
   var exN = s.exhaust;
   for (var e = 0; e < exN; e++) {
     var ez = exN === 1 ? W * 0.3 : (e === 0 ? -1 : 1) * W * 0.3;
@@ -1086,7 +1103,12 @@ function buildCar(ch) {
   var pf = new THREE.Mesh(new THREE.PlaneGeometry(0.52, 0.114), plateMat); pf.position.set(L + 0.02, fb + fh * 0.36, 0); pf.rotation.y = Math.PI / 2; body.add(pf);
   pr.userData.keep = true; pf.userData.keep = true;
   if (s.scoop) body.add(box(0.45, 0.07, 0.5, M.trim, L - 1.05, s.hood + 0.01, 0, -0.06));
-  if (s.stripes) { body.add(box(L - 0.4, 0.01, 0.16, M.stripe, L / 2 + 0.3, s.hood + 0.035, -0.14)); body.add(box(L - 0.4, 0.01, 0.16, M.stripe, L / 2 + 0.3, s.hood + 0.035, 0.14)); }
+  if (s.stripes) {
+    for (var sx = s.cowl + 0.15; sx < L - 0.12; sx += 0.1) {
+      var sy = bodyTop(s, prof, sx + 0.05) + 0.004, ang = Math.atan2(bodyTop(s, prof, sx + 0.1) - bodyTop(s, prof, sx), 0.1);
+      body.add(box(0.105, 0.008, 0.15, M.stripe, sx + 0.05, sy, -0.14, ang)); body.add(box(0.105, 0.008, 0.15, M.stripe, sx + 0.05, sy, 0.14, ang));
+    }
+  }
   // kaporta kiti
   if (ch.kit >= 1) {
     [-1, 1].forEach(function (sd) { var xm = L - s.fo - s.wb / 2; body.add(box(s.wb - 2 * s.r - 0.22, 0.1, 0.05, paint, xm, s.clr + 0.05, sd * (sideZ(s, prof, xm, s.clr + 0.1) - 0.012))); });
@@ -1096,8 +1118,8 @@ function buildCar(ch) {
     for (var fn = -2; fn <= 2; fn++) body.add(box(0.3, 0.1, 0.02, M.carbon, 0.14, s.clr + 0.03, fn * 0.16));
   }
   // spoyler
-  if (ch.spoiler === 1) body.add(box(0.12, 0.04, W * 0.84, paint, 0.1, s.tail + 0.015, 0, 0.25));
-  if (ch.spoiler === 2) body.add(box(0.3, 0.08, W * 0.9, paint, 0.2, s.deck + 0.04, 0, 0.18));
+  if (ch.spoiler === 1) body.add(box(0.14, 0.03, W * 0.8, paint, 0.12, bodyTop(s, prof, 0.12) + 0.012, 0, 0.22));
+  if (ch.spoiler === 2) { body.add(box(0.32, 0.05, W * 0.82, paint, 0.2, bodyTop(s, prof, 0.2) + 0.035, 0, 0.2)); }
   if (ch.spoiler === 3) {
     body.add(box(0.36, 0.035, W * 1.0, M.carbon, 0.22, s.deck + 0.38, 0, 0.08));
     [-1, 1].forEach(function (sd) {
@@ -1118,7 +1140,7 @@ function buildCar(ch) {
   [[L - s.fo, 1], [L - s.fo - s.wb, 0]].forEach(function (ax) {
     [-1, 1].forEach(function (sd) {
       var wh = buildWheel(s, ch.rim, rimMat, M);
-      wh.group.position.set(ax[0], s.r, sd * (W / 2 - 0.16));
+      wh.group.position.set(ax[0], s.r, sd * (W / 2 - 0.135));
       if (sd < 0) wh.face.rotation.y = Math.PI;
       body.add(wh.group);
       wheels.push({ g: wh.group, spin: wh.spin, front: ax[1] === 1, side: sd });
@@ -1231,18 +1253,18 @@ function stepVehicle(car, dt, inp) {
   var st = car.steer, sAbs = Math.abs(st);
 
   // --- hedef dönüş hızı ---
-  var ayMax = car.mu * G * (assist ? 0.9 : 1.0) * (car.bump > 0 ? 0.9 : 1);
-  var wKin = Math.max(au, 0) * Math.tan(0.52) / L;           // düşük hızda direksiyon açısı sınırı
-  var wGrip = ayMax / Math.max(au, 1);                        // yüksek hızda tutuş sınırı
-  var wCap = Math.min(wKin, wGrip * (hand ? 1.45 : 1));
+  var ayMax = (assist ? 25 : 21) * (car.bump > 0 ? 0.85 : 1);   // oyun tutuşu: keskin dönüş
+  var wKin = Math.max(au, 0) * Math.tan(0.7) / L;            // düşük hızda direksiyon açısı sınırı
+  var wGrip = ayMax / Math.max(au, 1);                        // yüksek hızda sınır
+  var wCap = Math.min(wKin, wGrip * (hand ? 1.35 : 1), 2.3);
   var wT = -Math.sign(st) * Math.pow(sAbs, 1.15) * wCap;       // sağ = eksi
   if (u < -0.3) wT = -wT * 0.8;                                // geri viteste ters
-  var yawResp = hand ? 7 : (assist ? 9 : 7);
+  var yawResp = hand ? 8 : (assist ? 11 : 9);
   w += (wT - w) * (1 - Math.exp(-dt * yawResp));
   car.delta = clamp(-st * Math.min(0.5, wCap * L / Math.max(au, 1) + 0.03), -0.5, 0.5);
 
   // --- boyuna ---
-  var engine = car.throttle * Math.min(car.m * 5.2, car.power / Math.max(au, 2)) / car.m;
+  var engine = car.throttle * Math.min(car.m * 7.5, car.power * 1.6 / Math.max(au, 2)) / car.m;
   if (u < -0.5 && car.throttle > 0) engine = car.throttle * 9;
   var acc = engine;
   if (car.brake > 0) {
@@ -1250,13 +1272,13 @@ function stepVehicle(car, dt, inp) {
     else if (car.throttle === 0 && u > -8) acc -= car.brake * 3.2;           // geri vites
   }
   if (hand) acc -= Math.sign(u) * 3.5;
-  acc -= (car.drag * u * Math.abs(u) + 30 * u) / car.m;
+  acc -= (car.drag * 1.85 * u * Math.abs(u) + 30 * u) / car.m;
   acc -= G * Math.sin(Math.atan(car.slope || 0)) * 0.6;                     // yokuş
   // yana kayarken hız kaybı
-  acc -= Math.sign(u) * Math.min(4, Math.abs(v) * 0.9);
+  acc -= Math.sign(u) * Math.min(3, Math.abs(v) * 0.45);
 
   // --- yanal: dönerken hız vektörü geride kalır, tutuş bunu söndürür ---
-  var grip = hand ? 1.3 : (assist ? 10 : 6.5);
+  var grip = hand ? 1.4 : (assist ? 11 : 7);
   if (car.bump > 0) grip *= 0.8;
   v += (-u * w) * dt;
   v *= Math.exp(-dt * grip);
@@ -1359,7 +1381,7 @@ function updateRival(r, dt, moving) {
   var look = Math.min(N - 1, 3), want = T.vmax[(i + look) % N] * r.skill;
   if (!moving) want = 0;
   var prev = r.speed;
-  if (r.speed < want) r.speed = Math.min(want, r.speed + 5.5 * dt); else r.speed = Math.max(want, r.speed - 9 * dt);
+  if (r.speed < want) r.speed = Math.min(want, r.speed + 6.2 * dt); else r.speed = Math.max(want, r.speed - 12 * dt);
   r.braking = r.speed < prev - 0.02;
   // öndeki arabalardan kaçın
   r.laneT -= dt;
@@ -1400,7 +1422,7 @@ function spawnRivals(forRace) {
   rivals.forEach(function (r) { disposeCar(r.mesh); });
   rivals = [];
   var rnd = rng(forRace ? 9001 + Math.floor(Math.random() * 1000) : 1234);
-  var skills = [[0.8, 0.86], [0.88, 0.95], [0.95, 1.02]][difficulty];
+  var skills = [[0.8, 0.86], [0.9, 0.96], [0.98, 1.06]][difficulty];
   for (var i = 0; i < RIVALS; i++) {
     var ch = {
       model: MODEL_KEYS[Math.floor(rnd() * MODEL_KEYS.length)], paint: Math.floor(rnd() * PAINTS.length), finish: Math.floor(rnd() * 3),
@@ -1555,7 +1577,7 @@ function autoPilot(p) {
   var T = TRACK, look = trackPoint(p.prog + 10 + Math.max(0, p.u) * 0.6, p.id === 1 ? 2.5 : (players.length > 1 ? -2.5 : 0));
   var dx = look.x - p.x, dz = look.z - p.z;
   var desired = Math.atan2(dx, dz), err = wrapAngle(desired - p.psi);
-  var vmax = T.vmax[(p.idx + 6) % T.N] * 0.9, cruise = state === 'results' ? Math.min(vmax, 16) : vmax;
+  var vmax = T.vmax[(p.idx + 6) % T.N] * 1.12, cruise = state === 'results' ? Math.min(vmax, 16) : vmax;
   return { steer: clamp(-err * 4, -1, 1), gas: p.u < cruise ? 0.8 : 0, brake: p.u > cruise + 3 ? 0.6 : 0, hand: 0, analog: true };
 }
 
@@ -1596,7 +1618,7 @@ function updateCamera(p, dt, aspect) {
     if (cd < back * 0.75) { p.camPos.x = p.x + cx / cd * back * 0.75; p.camPos.z = p.z + cz / cd * back * 0.75; }
     cam.position.set(p.camPos.x + shx, p.camPos.y + shy + fast * 0.05 * Math.sin(raceT * 40), p.camPos.z);
     cam.lookAt(p.x + sp * 6, p.y + (mode === 0 ? 1.1 : 1.0), p.z + cp * 6);
-    cam.fov = baseFov(aspect) + Math.min(14, speed * 0.2);
+    cam.fov = baseFov(aspect) + Math.min(20, speed * 0.26);
   } else {
     var fwd = mode === 2 ? (s.cowl - s.L / 2 + 0.15) : (s.L / 2 + 0.08);
     var hgt = mode === 2 ? s.hood + 0.34 : 0.55;
@@ -1946,15 +1968,10 @@ function drawGarageUI(hint) {
   // araba adı ve özellikleri
   txtShadow(spec.name, gv.x + u * 5, gv.y + u * 12, u * 9, COL.paper, 'left', 'alphabetic');
   txtShadow(spec.type, gv.x + u * 5, gv.y + u * 18, u * 4, COL.blueSoft, 'left', 'alphabetic');
-  var bars = [['Güç', 0.55 + (spec.power - 245) / 60], ['Yol tutuş', 0.55 + (spec.grip - 1.05) / 0.08], ['Hafiflik', 0.55 + (1435 - spec.mass) / 300]];
-  var bx = gv.x + u * 5, by = gv.y + gv.h - u * 22, bw = Math.min(gv.w * 0.6, u * 70);
-  for (var i = 0; i < bars.length; i++) {
-    var yy = by + i * u * 6;
-    txtShadow(bars[i][0], bx, yy + u * 2.2, u * 3.4, COL.paper, 'left', 'middle');
-    var barX = bx + u * 19, barW = bw - u * 19;
-    ctx.fillStyle = 'rgba(255,255,255,.14)'; rr(ctx, barX, yy + u * 1, barW, u * 2.4, u * 1.2); ctx.fill();
-    ctx.fillStyle = COL.focus; rr(ctx, barX, yy + u * 1, barW * clamp(bars[i][1], 0.1, 1), u * 2.4, u * 1.2); ctx.fill();
-  }
+  var by = gv.y + gv.h - u * 17;
+  txtShadow('0-100 km/sa: 3,9 sn', gv.x + u * 5, by, u * 3.8, COL.paper, 'left', 'middle');
+  txtShadow('En yüksek hız: ~255 km/sa', gv.x + u * 5, by + u * 5.5, u * 3.8, COL.paper, 'left', 'middle');
+  txtShadow('Bütün arabalar eşit güçte', gv.x + u * 5, by + u * 11, u * 3.4, COL.focus, 'left', 'middle');
   var ix, iy, colW, availH;
   if (wide) { ix = W * 0.58; colW = W * 0.39; iy = u * 5; }
   else { ix = u * 3; colW = W - u * 6; iy = gv.h + u * 3; }
