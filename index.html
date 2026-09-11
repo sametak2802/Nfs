@@ -20,6 +20,8 @@ html,body{margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#
 <input id="plate" maxlength="10" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="PLAKA">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>window.THREE || document.write('<script src="three.min.js"><\/script>')</script>
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+<script>window.Peer || document.write('<script src="peerjs.min.js"><\/script>')</script>
 <script>
 (function () {
 'use strict';
@@ -387,7 +389,7 @@ function buildTrackData() {
     var ks = 0;
     for (var j = -6; j <= 6; j++) ks += Math.abs(S[(i + j + N) % N].k);
     ks /= 13;
-    vmax.push(Math.min(72, Math.sqrt(16 / Math.max(ks, 1e-4))));
+    vmax.push(Math.min(72, Math.sqrt(24 / Math.max(ks, 1e-4))));
   }
   for (var pass = 0; pass < 2; pass++) {
     for (i = N - 1; i >= 0; i--) {
@@ -1248,18 +1250,18 @@ function stepVehicle(car, dt, inp) {
   // --- direksiyon girişi: tuşta hızlı ama sert olmayan geçiş ---
   var target = inp.steer;
   var growing = Math.abs(target) > Math.abs(car.steer) && target * car.steer >= 0;
-  var rate = inp.analog ? 10 : (growing ? 6.5 : 9);
+  var rate = inp.analog ? 12 : (growing ? 9 : 11);
   car.steer += clamp(target - car.steer, -rate * dt, rate * dt);
   var st = car.steer, sAbs = Math.abs(st);
 
   // --- hedef dönüş hızı ---
-  var ayMax = (assist ? 25 : 21) * (car.bump > 0 ? 0.85 : 1);   // oyun tutuşu: keskin dönüş
-  var wKin = Math.max(au, 0) * Math.tan(0.7) / L;            // düşük hızda direksiyon açısı sınırı
-  var wGrip = ayMax / Math.max(au, 1);                        // yüksek hızda sınır
-  var wCap = Math.min(wKin, wGrip * (hand ? 1.35 : 1), 2.3);
-  var wT = -Math.sign(st) * Math.pow(sAbs, 1.15) * wCap;       // sağ = eksi
+  var ayMax = (assist ? 36 : 30) * (car.bump > 0 ? 0.85 : 1);   // oyun tutuşu: çok keskin dönüş
+  var wKin = Math.max(au, 0) * Math.tan(0.8) / L;            // düşük hızda direksiyon açısı sınırı
+  var wGrip = Math.max(ayMax / Math.max(au, 1), assist ? 1.15 : 1.0);   // yüksek hızda bile dönebilsin
+  var wCap = Math.min(wKin, wGrip * (hand ? 1.3 : 1), 2.7);
+  var wT = -Math.sign(st) * sAbs * wCap;                        // sağ = eksi
   if (u < -0.3) wT = -wT * 0.8;                                // geri viteste ters
-  var yawResp = hand ? 8 : (assist ? 11 : 9);
+  var yawResp = hand ? 9 : (assist ? 13 : 11);
   w += (wT - w) * (1 - Math.exp(-dt * yawResp));
   car.delta = clamp(-st * Math.min(0.5, wCap * L / Math.max(au, 1) + 0.03), -0.5, 0.5);
 
@@ -1278,7 +1280,7 @@ function stepVehicle(car, dt, inp) {
   acc -= Math.sign(u) * Math.min(3, Math.abs(v) * 0.45);
 
   // --- yanal: dönerken hız vektörü geride kalır, tutuş bunu söndürür ---
-  var grip = hand ? 1.4 : (assist ? 11 : 7);
+  var grip = hand ? 1.5 : (assist ? 12 : 8);
   if (car.bump > 0) grip *= 0.8;
   v += (-u * w) * dt;
   v *= Math.exp(-dt * grip);
@@ -1454,8 +1456,9 @@ function spawnPlayers() {
   players.forEach(function (p) { disposeCar(p.mesh); });
   players = [];
   for (var i = 0; i < numPlayers; i++) {
-    var car = makeVehicle(choices[i], i);
-    car.mesh = buildCar(choices[i]); scene.add(car.mesh);
+    var slot = (NET.role === 'host' && NET.playerSlots) ? NET.playerSlots[i] : i;
+    var car = makeVehicle(choices[slot], i); car.slot = slot;
+    car.mesh = buildCar(choices[slot]); scene.add(car.mesh);
     placeCarOnTrack(car, TRACK.len - 8, numPlayers === 1 ? 0 : (i === 0 ? -3.2 : 3.2));
     car.crossings = 0; car.maxCross = 0; car.prevProg = car.prog;
     players.push(car);
@@ -1504,11 +1507,15 @@ function inputFor(idx) {
   function addSet(k) { if (!k) return; if (k.left) st -= 1; if (k.right) st += 1; if (k.gas) gas = 1; if (k.brake) brake = 1; if (k.hand) hand = 1; }
   function addPad(pd) { if (!pd) return; if (Math.abs(pd.steer) > 0.05) { st += pd.steer; analog = pd.analogSteer; } gas = Math.max(gas, pd.gas); brake = Math.max(brake, pd.brake); if (pd.hand) hand = 1; }
   var t = touchIn[players.length > 1 ? idx : 0];
-  if (players.length === 1) { addSet(kb1); addSet(kb2); addSet(t); addPad(pads[0]); }
+  if (players.length <= 1) { addSet(kb1); addSet(kb2); addSet(t); addPad(pads[0]); }
   else if (idx === 0) { addSet(kb1); addSet(t); addPad(pads[0]); }
   else { addSet(kb2); addSet(t); addPad(pads[1]); }
   if (steerMode > 0 && isTouch && idx === 0 && tilt.active) { st += tilt.value; analog = true; }
-  if (autoGas) gas = brake > 0 ? 0 : 1;
+  if (NET.role === 'host' && players[idx]) {
+    var ri = remoteIn[players[idx].slot];
+    if (ri) { st += ri.steer; gas = Math.max(gas, ri.gas); brake = Math.max(brake, ri.brake); if (ri.hand) hand = 1; if (ri.analog) analog = true; }
+  }
+  if (autoGas && NET.role !== 'host') gas = brake > 0 ? 0 : 1;
   return { steer: clamp(st, -1, 1), gas: gas, brake: brake, hand: hand, analog: analog };
 }
 
@@ -1637,7 +1644,7 @@ function renderView(cam, v) {
   renderer.render(scene, cam);
 }
 function layoutViews() {
-  if (players.length < 2 || state === 'menu' || state === 'settings') return [{ x: 0, y: 0, w: SW, h: SH }];
+  if (players.length < 2 || state === 'menu' || state === 'settings' || state === 'lobby' || state === 'padjoin') return [{ x: 0, y: 0, w: SW, h: SH }];
   var gap = Math.max(2, Math.round(SH * 0.005));
   if (isTouch || SW / SH >= 1.9) { var hw = Math.floor((SW - gap) / 2); return [{ x: 0, y: 0, w: hw, h: SH }, { x: SW - hw, y: 0, w: hw, h: SH }]; }
   var hh = Math.floor((SH - gap) / 2); return [{ x: 0, y: 0, w: SW, h: hh }, { x: 0, y: SH - hh, w: SW, h: hh }];
@@ -1645,9 +1652,10 @@ function layoutViews() {
 function render3D(dt) {
   renderer.setScissorTest(false);
   renderer.clear();
-  if (state === 'garage') { renderGarage(dt); return; }
+  if (isGarageLike()) { renderGarage(dt); return; }
+  if (state === 'pad') { views = [{ x: 0, y: 0, w: SW, h: SH }]; return; }
   views = layoutViews();
-  if ((state === 'menu' || state === 'settings') && rivals.length) {
+  if ((state === 'menu' || state === 'settings' || state === 'lobby' || state === 'padjoin') && rivals.length) {
     attractT += dt;
     var r = rivals[0], ang = attractT * 0.18;
     var ax = r.x + Math.sin(r.psi + Math.PI + Math.sin(ang) * 0.9) * 8.5, az = r.z + Math.cos(r.psi + Math.PI + Math.sin(ang) * 0.9) * 8.5;
@@ -1833,7 +1841,7 @@ function drawViewHUD(p, v) {
 var CAM_NAMES = ['uzak', 'yakın', 'kaput', 'tampon'];
 
 function touchLayout(w, h) {
-  var r = Math.min(h * 0.115, w * 0.08), pad = Math.max(h * 0.04, r * 0.35);
+  var big = state === 'pad' ? 1.4 : 1, r = Math.min(h * 0.115, w * 0.08) * big, pad = Math.max(h * 0.04, r * 0.35);
   return {
     r: r,
     left: { x: pad + r, y: h - pad - r }, right: { x: pad + r * 3.3, y: h - pad - r },
@@ -1975,15 +1983,16 @@ function drawGarageUI(hint) {
   var ix, iy, colW, availH;
   if (wide) { ix = W * 0.58; colW = W * 0.39; iy = u * 5; }
   else { ix = u * 3; colW = W - u * 6; iy = gv.h + u * 3; }
-  var titleH = u * (numPlayers > 1 ? 17.5 : 12);
+  var titleH = u * ((numPlayers > 1 || state === 'pad') ? 17.5 : 12);
   ctx.fillStyle = COL.blue; rr(ctx, ix, iy, colW, titleH, u * 2); ctx.fill();
   ctx.strokeStyle = COL.paper; ctx.lineWidth = u * 0.5; rr(ctx, ix + u, iy + u, colW - u * 2, titleH - u * 2, u * 1.3); ctx.stroke();
   txt('Garaj', ix + u * 4.5, iy + u * 8.6, u * 7, COL.paper);
   var okW = Math.min(colW * 0.36, u * 26), okH = titleH - u * 3.4;
   garageOk = { x: ix + colW - okW - u * 1.7, y: iy + u * 1.7, w: okW, h: okH };
   ctx.fillStyle = COL.focus; rr(ctx, garageOk.x, garageOk.y, okW, okH, u * 1.3); ctx.fill();
-  txt('Tamam ✓', garageOk.x + okW / 2, garageOk.y + okH / 2 + u * 0.3, Math.min(u * 4.6, okH * 0.5), COL.ink, 'center', 'middle');
-  if (numPlayers > 1) txt((gIdx + 1) + '. oyuncunun arabası', ix + u * 4.5, iy + u * 14, u * 3.6, COL.blueSoft);
+  txt(state === 'pad' ? 'Başlat ▶' : 'Tamam ✓', garageOk.x + okW / 2, garageOk.y + okH / 2 + u * 0.3, Math.min(u * 4.6, okH * 0.5), COL.ink, 'center', 'middle');
+  if (state === 'pad') txt((NET.slot + 1) + ". oyuncu · TV'ye bağlı", ix + u * 4.5, iy + u * 14, u * 3.6, COL.blueSoft);
+  else if (numPlayers > 1) txt((gIdx + 1) + '. oyuncunun arabası', ix + u * 4.5, iy + u * 14, u * 3.6, COL.blueSoft);
   iy += titleH + u * 2.5;
   availH = H - iy - u * 11;
   drawItems(items, ix, iy, colW, availH, u);
@@ -2001,14 +2010,23 @@ function drawHUD2D(dt) {
   if (state === 'loading') { drawLoading(); return; }
   camToast.forEach(function (c) { if (c) c.t -= dt; });
   var hint = isTouch ? 'Seçmek için dokun, değiştirmek için satırın sağına ya da soluna dokun' : 'Yukarı aşağı seç, sağ sol değiştir, OK onayla';
-  if (state === 'garage') { drawGarageUI(hint); return; }
+  if (isGarageLike()) { drawGarageUI(hint); return; }
+  if (state === 'lobby') { drawLobbyTV(isTouch ? '' : 'Yarışı telefondan ya da kumandada OK ile başlatın'); return; }
+  if (state === 'padjoin') { drawMenuScreen("TV'ye bağlan", ['TV ekranındaki 4 haneli kodu yaz', NET.status || ' '], menuItems(), hint, 0.5); return; }
+  if (state === 'pad') {
+    if (isPadRacing()) { drawPadController(); return; }
+    var inf = NET.info || {};
+    if (NET.padState === 'pause') drawMenuScreen('Duraklatıldı', ['Yarış TV\'de durdu'], menuItems(), hint, 0.85);
+    else if (NET.padState === 'results') drawMenuScreen(inf.title || 'Yarış bitti', inf.lines || [], menuItems(), hint, 0.85);
+    return;
+  }
   if (state === 'race' || state === 'countdown' || state === 'pause' || state === 'results') {
     for (var i = 0; i < views.length && i < players.length; i++) drawViewHUD(players[i], views[i]);
     if (players.length > 1 && views.length === 2) {
       ctx.fillStyle = '#05070b';
       if (views[1].x > 0) ctx.fillRect(views[0].w, 0, views[1].x - views[0].w, SH); else ctx.fillRect(0, views[0].h, SW, views[1].y - views[0].h);
     }
-    if (isTouch && (state === 'race' || state === 'countdown')) drawTopButtons();
+    if (isTouch && (state === 'race' || state === 'countdown') && NET.role !== 'host') drawTopButtons();
   }
   if (state === 'menu') drawMenuScreen('Gece Yarışı', [TOTAL_LAPS + ' tur, ' + RIVALS + ' rakip, şehir pisti'], menuItems(), hint, 0.25);
   else if (state === 'settings') drawMenuScreen('Ayarlar', ['Sürüş rahat: savrulmayı frenleyen yardım açık'], menuItems(), hint, 0.45);
@@ -2030,6 +2048,236 @@ function drawHUD2D(dt) {
     ctx.fillStyle = 'rgba(6,9,16,.85)'; ctx.fillRect(0, 0, SW, u2 * 6);
     txt('En iyi deneyim için telefonu yan çevir', SW / 2, u2 * 3.1, u2 * 2.3, COL.paper, 'center', 'middle');
   }
+}
+
+// ======================================================================
+// TELEFON KUMANDA SİSTEMİ
+// TV (ev sahibi) kod gösterir; telefonlar kodu yazıp bağlanır (PeerJS).
+// Her telefon: kendi garajı, kendi direksiyon tuşları, yarışı başlatma.
+// ======================================================================
+var NET = { role: null, peer: null, code: '', conns: [null, null], status: '', hostConn: null, slot: -1, padState: 'lobby', info: {},
+  sendT: 0, lastIn: '', joinCode: '', lastKey: '', playerSlots: null };
+var remoteIn = [null, null];
+var PEER_PREFIX = 'geceyarisi-tv-';
+function netAvailable() { return typeof window.Peer === 'function'; }
+function stopNet() {
+  try { if (NET.hostConn) NET.hostConn.close(); } catch (e) {}
+  for (var i = 0; i < 2; i++) { try { if (NET.conns[i]) NET.conns[i].close(); } catch (e) {} NET.conns[i] = null; remoteIn[i] = null; }
+  try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
+  NET.peer = null; NET.hostConn = null; NET.role = null; NET.playerSlots = null; NET.slot = -1; NET.padState = 'lobby';
+}
+function sanitizeChoice(ch) {
+  if (MODEL_KEYS.indexOf(ch.model) < 0) ch.model = 'kaiser';
+  function n(k, max) { ch[k] = clamp(Math.floor(+ch[k] || 0), 0, max - 1); }
+  n('paint', PAINTS.length); n('finish', FINISHES.length); n('rim', RIM_TYPES.length); n('rimColor', RIM_COLORS.length);
+  n('spoiler', SPOILERS.length); n('kit', KITS.length); n('flaps', 2); n('tint', TINTS.length); n('neon', NEONS_UNDER.length);
+  ch.plate = String(ch.plate || '').slice(0, 10);
+  return ch;
+}
+function resultsSummary(forSlot) {
+  var lines = [], title = '';
+  if (players.length === 1) {
+    var p0 = players[0]; title = p0.rank === 1 ? 'Birinci oldun!' : p0.rank + '. oldun';
+    lines.push('Toplam ' + fmt(p0.finishTime)); lines.push('En iyi tur ' + fmt(p0.best));
+  } else if (players.length === 2) {
+    var a = players[0], b = players[1];
+    title = a.rank === b.rank ? 'Berabere' : ((a.rank < b.rank ? '1' : '2') + '. oyuncu kazandı');
+    players.forEach(function (pk, k) { lines.push((k + 1) + '. oyuncu: ' + pk.rank + '. sıra, ' + (pk.finishTime !== null ? fmt(pk.finishTime) : 'bitiremedi')); });
+  }
+  return { title: title, lines: lines };
+}
+
+// ---------------- TV (ev sahibi) ----------------
+function startHost() {
+  initAudio();
+  stopNet();
+  NET.role = 'host'; state = 'lobby'; menu.focus = 0; menu.scroll = 0;
+  if (!netAvailable()) { NET.status = 'Bağlantı kütüphanesi yüklenemedi. İnterneti kontrol edip sayfayı yenile.'; return; }
+  NET.code = String(1000 + Math.floor(Math.random() * 9000));
+  NET.status = 'Kod hazırlanıyor…';
+  var peer;
+  try { peer = new Peer(PEER_PREFIX + NET.code); } catch (e) { NET.status = 'Bağlantı başlatılamadı'; return; }
+  NET.peer = peer;
+  peer.on('open', function () { if (NET.peer === peer) NET.status = 'Telefonlar bağlanabilir'; });
+  peer.on('connection', function (conn) { hostAccept(conn); });
+  peer.on('error', function (err) {
+    if (NET.peer !== peer) return;
+    if (err && err.type === 'unavailable-id') { startHost(); return; }
+    NET.status = 'Bağlantı sorunu (' + (err && err.type ? err.type : 'bilinmiyor') + '). İnterneti kontrol et.';
+  });
+  peer.on('disconnected', function () { if (NET.peer === peer) { try { peer.reconnect(); } catch (e) {} } });
+}
+function hostAccept(conn) {
+  conn.on('open', function () {
+    var slot = -1;
+    for (var i = 0; i < 2; i++) if (!NET.conns[i] || !NET.conns[i].open) { slot = i; break; }
+    if (slot < 0) { try { conn.send({ t: 'full' }); } catch (e) {} setTimeout(function () { try { conn.close(); } catch (e) {} }, 400); return; }
+    conn.slot = slot; NET.conns[slot] = conn; remoteIn[slot] = null;
+    try { conn.send({ t: 'welcome', slot: slot }); } catch (e) {}
+    NET.lastKey = ''; beep(880, 0.12);
+  });
+  conn.on('data', function (d) { if (conn.slot !== undefined && NET.conns[conn.slot] === conn) hostMsg(conn.slot, d); });
+  conn.on('close', function () { hostDrop(conn); });
+  conn.on('error', function () { hostDrop(conn); });
+}
+function hostDrop(conn) {
+  if (conn.slot !== undefined && NET.conns[conn.slot] === conn) { NET.conns[conn.slot] = null; remoteIn[conn.slot] = null; beep(300, 0.2); }
+}
+function connectedSlots() { var a = []; for (var i = 0; i < 2; i++) if (NET.conns[i] && NET.conns[i].open) a.push(i); return a; }
+function playerIndexOfSlot(s) { for (var i = 0; i < players.length; i++) if (players[i].slot === s) return i; return -1; }
+function hostMsg(slot, m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'in') { remoteIn[slot] = { steer: clamp(+m.s || 0, -1, 1), gas: clamp(+m.g || 0, 0, 1), brake: clamp(+m.b || 0, 0, 1), hand: m.h ? 1 : 0, analog: !!m.a, t: Date.now() }; return; }
+  if (m.t === 'choice' && m.ch) { choices[slot] = sanitizeChoice(m.ch); return; }
+  if (m.t === 'start') { if (state === 'lobby' || state === 'pause' || (state === 'results' && resultsT > 1.2)) hostStartRace(); return; }
+  if (m.t === 'cam') { var pi = playerIndexOfSlot(slot); if (pi >= 0) cycleCam(pi); return; }
+  if (m.t === 'pause') { if (state === 'race' || state === 'countdown') pauseGame(); return; }
+  if (m.t === 'resume') { if (state === 'pause') resumeGame(); return; }
+  if (m.t === 'lobby') { if (state !== 'lobby') hostToLobby(); return; }
+}
+function hostStartRace() {
+  var slots = connectedSlots();
+  if (!slots.length) { NET.status = 'Önce en az bir telefon bağlanmalı'; return; }
+  NET.playerSlots = slots; numPlayers = slots.length;
+  startRace();
+}
+function hostToLobby() { toMenu(); state = 'lobby'; menu.focus = 0; NET.lastKey = ''; }
+function hostStateName() {
+  if (state === 'countdown' || state === 'race' || state === 'pause') return state;
+  if (state === 'results') return resultsT > 1.2 ? 'results' : 'race';
+  return 'lobby';
+}
+function netBroadcast() {
+  var sn = hostStateName(), summary = sn === 'results' ? resultsSummary() : null;
+  for (var s = 0; s < 2; s++) {
+    var c = NET.conns[s]; if (!c || !c.open) continue;
+    var pi = playerIndexOfSlot(s), p = (sn !== 'lobby' && pi >= 0) ? players[pi] : null;
+    var msg = { t: 'st', s: sn, slot: s, cd: state === 'countdown' ? Math.ceil(cdT) : 0, player: pi };
+    if (p) { msg.rank = currentRank(p); msg.tot = RIVALS + players.length; msg.lap = clamp(p.crossings, 1, TOTAL_LAPS); msg.laps = TOTAL_LAPS; msg.kmh = Math.round(Math.abs(p.u) * 3.6); msg.fin = p.finished; msg.hit = p.shake > 0.35 ? 1 : 0; }
+    if (summary) { msg.title = summary.title; msg.lines = summary.lines; }
+    try { c.send(msg); } catch (e) {}
+  }
+}
+
+// ---------------- Telefon (kumanda) ----------------
+function openPadJoin() { initAudio(); state = 'padjoin'; menu.focus = 0; menu.scroll = 0; NET.status = ''; guardBack(); }
+function padConnect() {
+  var code = (NET.joinCode || '').replace(/\D/g, '');
+  if (code.length !== 4) { NET.status = 'Kod 4 haneli olmalı'; return; }
+  if (!netAvailable()) { NET.status = 'Bağlantı kütüphanesi yüklenemedi, interneti kontrol et'; return; }
+  goFullscreen();
+  stopNet();
+  NET.role = 'pad'; NET.status = 'TV aranıyor…';
+  var peer;
+  try { peer = new Peer(); } catch (e) { NET.status = 'Bağlantı başlatılamadı'; return; }
+  NET.peer = peer;
+  var myPeer = peer;
+  setTimeout(function () { if (NET.peer === myPeer && state === 'padjoin' && (!NET.hostConn || !NET.hostConn.open)) NET.status = 'TV bulunamadı. Kodu ve TV ekranını kontrol et.'; }, 10000);
+  peer.on('open', function () {
+    if (NET.peer !== myPeer) return;
+    var conn = peer.connect(PEER_PREFIX + code, { reliable: true });
+    NET.hostConn = conn;
+    conn.on('open', function () { NET.status = 'Bağlandı'; try { conn.send({ t: 'hello' }); } catch (e) {} });
+    conn.on('data', padMsg);
+    conn.on('close', function () { if (NET.hostConn === conn) { NET.status = 'TV ile bağlantı koptu. Tekrar bağlanabilirsin.'; state = 'padjoin'; NET.padState = 'lobby'; menu.focus = 1; disposeGarage(); } });
+  });
+  peer.on('error', function (err) {
+    if (NET.peer !== myPeer) return;
+    NET.status = err && err.type === 'peer-unavailable' ? 'Bu kodla açık bir TV bulunamadı' : 'Bağlantı sorunu (' + (err && err.type ? err.type : '') + ')';
+    if (state === 'pad') { state = 'padjoin'; disposeGarage(); }
+  });
+}
+function padLeave() { stopNet(); disposeGarage(); state = 'padjoin'; menu.focus = 0; NET.status = 'Bağlantı kesildi'; }
+function padSend(m) { if (NET.hostConn && NET.hostConn.open) { try { NET.hostConn.send(m); } catch (e) {} } }
+function padMsg(m) {
+  if (!m || typeof m !== 'object') return;
+  if (m.t === 'full') { NET.status = 'TV dolu: iki telefon zaten bağlı'; return; }
+  if (m.t === 'welcome') {
+    NET.slot = m.slot; state = 'pad'; NET.padState = 'lobby'; gIdx = 0; menu.focus = 0; menu.scroll = 0; menu.userScroll = false;
+    padLastChoice = ''; beep(880, 0.12); if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {}
+    return;
+  }
+  if (m.t === 'st') {
+    var prev = NET.padState;
+    NET.padState = m.s; NET.info = m;
+    if (prev !== m.s) {
+      menu.focus = 0; menu.scroll = 0; menu.userScroll = false; clearControls();
+      if (m.s === 'lobby') { gIdx = 0; }
+      else disposeGarage();
+      if (m.s === 'countdown') calibrateTilt();
+      if (m.s === 'race' && prev === 'countdown' && navigator.vibrate) try { navigator.vibrate(120); } catch (e) {}
+    }
+    if (m.hit && navigator.vibrate) try { navigator.vibrate(40); } catch (e) {}
+  }
+}
+var padLastChoice = '', padInT = 0;
+function netUpdate(dt) {
+  if (NET.role === 'host') {
+    NET.sendT -= dt;
+    var key = hostStateName() + (state === 'countdown' ? Math.ceil(cdT) : '') + connectedSlots().join('');
+    if (NET.sendT <= 0 || key !== NET.lastKey) { NET.sendT = state === 'race' ? 0.12 : 0.3; NET.lastKey = key; netBroadcast(); }
+    for (var i = 0; i < 2; i++) if (remoteIn[i] && Date.now() - remoteIn[i].t > 1200) remoteIn[i] = { steer: 0, gas: 0, brake: 0, hand: 0, analog: false, t: remoteIn[i].t };
+  } else if (NET.role === 'pad' && state === 'pad') {
+    var ck = JSON.stringify(choices[0]);
+    if (ck !== padLastChoice) { padLastChoice = ck; padSend({ t: 'choice', ch: choices[0] }); }
+    if (NET.padState === 'race' || NET.padState === 'countdown') {
+      padInT -= dt;
+      var inp = inputFor(0), k = inp.steer.toFixed(2) + '|' + inp.gas + '|' + inp.brake + '|' + inp.hand;
+      if (padInT <= 0 || k !== NET.lastIn) { padInT = 0.08; NET.lastIn = k; padSend({ t: 'in', s: +inp.steer.toFixed(3), g: inp.gas, b: inp.brake, h: inp.hand, a: inp.analog ? 1 : 0 }); }
+    }
+  }
+}
+function isPadRacing() { return state === 'pad' && (NET.padState === 'race' || NET.padState === 'countdown'); }
+function isGarageLike() { return state === 'garage' || (state === 'pad' && NET.padState === 'lobby'); }
+
+// ---------------- Çizim ----------------
+function drawLobbyTV(hint) {
+  W = SW; H = SH;
+  var u = Math.min(H, W * 0.75) / 100;
+  ctx.fillStyle = 'rgba(6,9,16,.62)'; ctx.fillRect(0, 0, W, H);
+  var colW = Math.min(W * 0.44, u * 84), lx = W * 0.05, rx = W * 0.53;
+  drawTitleSign('Telefonla oyna', ['1) Telefonda bu sayfayı aç', "2) \"TV'ye bağlan\" seçeneğine dokun", '3) Aşağıdaki kodu yaz'], lx, u * 6, colW, u * 36, u);
+  // kod
+  var cy = u * 46;
+  ctx.fillStyle = COL.focus; rr(ctx, lx, cy, colW, u * 26, u * 2.5); ctx.fill();
+  txt('KOD', lx + u * 4, cy + u * 7, u * 4.5, COL.ink);
+  txt(NET.code || '----', lx + colW / 2, cy + u * 16.5, u * 17, COL.ink, 'center', 'middle');
+  var addr = (location.host + location.pathname).replace(/index\.html$/, '');
+  txtShadow(addr, lx, cy + u * 33, u * 3.6, COL.blueSoft, 'left', 'middle');
+  txtShadow(NET.status || '', lx, cy + u * 39, u * 3.4, COL.paper, 'left', 'middle');
+  // oyuncular
+  for (var s = 0; s < 2; s++) {
+    var c = NET.conns[s], on = c && c.open, y = u * 8 + s * u * 18, ch = choices[s];
+    ctx.fillStyle = on ? 'rgba(31,85,160,.95)' : 'rgba(242,239,230,.12)'; rr(ctx, rx, y, colW, u * 15, u * 2); ctx.fill();
+    ctx.fillStyle = on ? PAINTS[ch.paint].h : 'rgba(255,255,255,.2)'; rr(ctx, rx + u * 2.5, y + u * 2.5, u * 10, u * 10, u * 1.5); ctx.fill();
+    txt(String(s + 1), rx + u * 7.5, y + u * 7.8, u * 6, on && lum(PAINTS[ch.paint].h) > 0.6 ? COL.ink : '#fff', 'center', 'middle');
+    txt(on ? (s + 1) + '. oyuncu bağlı' : (s + 1) + '. oyuncu bekleniyor…', rx + u * 16, y + u * 6.5, u * 4.6, COL.paper, 'left', 'middle');
+    if (on) txt(CAR_MODELS[ch.model].name + ' · ' + PAINTS[ch.paint].n + ' · ' + ch.plate, rx + u * 16, y + u * 11.3, u * 3.4, COL.blueSoft, 'left', 'middle');
+  }
+  drawItems(menuItems(), rx, u * 48, colW, H - u * 60, u);
+  if (hint) txtShadow(hint, W / 2, H - u * 3, u * 3.3, COL.paper, 'center', 'alphabetic');
+}
+function drawPadController() {
+  W = SW; H = SH;
+  var u = unitFor(W, H), info = NET.info || {};
+  var bg = ctx.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, '#0d1428'); bg.addColorStop(1, '#040507');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+  var paint = PAINTS[choices[0].paint].h;
+  var pw = Math.min(W * 0.42, u * 70), ph = u * 17;
+  ctx.fillStyle = COL.blue; rr(ctx, u * 3, u * 3, pw, ph, u * 2); ctx.fill();
+  ctx.strokeStyle = COL.paper; ctx.lineWidth = u * 0.5; rr(ctx, u * 4, u * 4, pw - u * 2, ph - u * 2, u * 1.3); ctx.stroke();
+  ctx.fillStyle = paint; rr(ctx, u * 5.5, u * 5.5, u * 8, ph - u * 5, u); ctx.fill();
+  txt(String((NET.slot || 0) + 1), u * 9.5, u * 3 + ph / 2, u * 6, lum(paint) > 0.6 ? COL.ink : '#fff', 'center', 'middle');
+  txt(info.rank ? info.rank + '.' : '-', u * 17, u * 15, u * 10, COL.paper);
+  txt('/' + (info.tot || '-'), u * 17 + u * 11, u * 15, u * 4.5, COL.blueSoft);
+  txt('Tur ' + (info.lap || 1) + '/' + (info.laps || TOTAL_LAPS), u * 36, u * 9.5, u * 4.4, COL.paper);
+  txt((info.kmh || 0) + ' km/sa', u * 36, u * 15, u * 4.4, COL.focus);
+  if (NET.padState === 'countdown') txtShadow(String(info.cd || ''), W / 2, H * 0.4, u * 22, COL.paper, 'center', 'middle');
+  else if (info.fin) txtShadow('Bitirdin! ' + (info.rank || '') + '. sıra', W / 2, H * 0.38, u * 8, COL.focus, 'center', 'middle');
+  else txtShadow("TV'ye bak, buradan sür", W / 2, H * 0.42, u * 4.2, 'rgba(242,239,230,.55)', 'center', 'middle');
+  if (info.player < 0) txtShadow('Bu yarışta değilsin, yarış bitince katılırsın', W / 2, H * 0.52, u * 3.8, COL.paper, 'center', 'middle');
+  drawTouch({ id: 0, finished: false }, u);
+  drawTopButtons();
 }
 
 // ======================================================================
@@ -2065,7 +2313,8 @@ function garageItem(label, value, key, n, extra) {
 }
 function menuItems() {
   if (state === 'menu') return [
-    { t: 'Yarışa başla', a: startRace },
+    { t: 'Yarışa başla', a: function () { NET.playerSlots = null; startRace(); } },
+    isTouch ? { t: "TV'ye bağlan (telefon kumanda)", a: openPadJoin } : { t: 'Telefonla oyna (TV ekranı)', a: startHost },
     { t: 'Garaj', a: openGarage },
     { t: 'Oyuncu: ' + numPlayers + ' kişi', toggle: true, a: function () { numPlayers = numPlayers === 1 ? 2 : 1; } },
     { t: 'Ayarlar', a: openSettings }
@@ -2082,9 +2331,23 @@ function menuItems() {
     list.push({ t: 'Geri', a: function () { backToMenu(3); } });
     return list;
   }
-  if (state === 'garage') {
+  if (state === 'lobby') return [
+    { t: 'Yarışı başlat (' + connectedSlots().length + ' telefon)', a: hostStartRace },
+    { t: 'Ana menü', a: function () { stopNet(); toMenu(); } }
+  ];
+  if (state === 'padjoin') return [
+    { t: 'Kod: ' + (NET.joinCode ? NET.joinCode : '____') + '   (dokun ve yaz)', a: openCodeEditor },
+    { t: 'Bağlan', a: padConnect },
+    { t: 'Geri', a: function () { stopNet(); backToMenu(1); } }
+  ];
+  if (state === 'pad') {
+    if (NET.padState === 'pause') return [{ t: 'Devam et', a: function () { padSend({ t: 'resume' }); } }, { t: 'Yeniden başla', a: function () { padSend({ t: 'start' }); } }, { t: 'Lobiye dön', a: function () { padSend({ t: 'lobby' }); } }];
+    if (NET.padState === 'results') return [{ t: 'Tekrar yarış', a: function () { padSend({ t: 'start' }); } }, { t: 'Lobiye dön (araba değiştir)', a: function () { padSend({ t: 'lobby' }); } }];
+    if (NET.padState !== 'lobby') return [];
+  }
+  if (isGarageLike()) {
     var ch = choices[gIdx], g = [];
-    if (numPlayers > 1) g.push({ t: 'Oyuncu: ' + (gIdx + 1), toggle: true, arrows: true, a: function () { gIdx = 1 - gIdx; } });
+    if (numPlayers > 1 && state === 'garage') g.push({ t: 'Oyuncu: ' + (gIdx + 1), toggle: true, arrows: true, a: function () { gIdx = 1 - gIdx; } });
     g.push({ t: 'Araba: ' + CAR_MODELS[ch.model].name, toggle: true, arrows: true, a: function (d) { var i = MODEL_KEYS.indexOf(choices[gIdx].model); choices[gIdx].model = MODEL_KEYS[cyc(i, MODEL_KEYS.length, d)]; } });
     g.push(garageItem('Boya', PAINTS[ch.paint].n, 'paint', PAINTS.length, { swatch: PAINTS[ch.paint].h }));
     g.push(garageItem('Boya türü', FINISHES[ch.finish], 'finish', FINISHES.length));
@@ -2096,15 +2359,18 @@ function menuItems() {
     g.push(garageItem('Cam filmi', TINTS[ch.tint].n, 'tint', TINTS.length, { swatch: TINTS[ch.tint].c }));
     g.push(garageItem('Alt neon', NEONS_UNDER[ch.neon].n, 'neon', NEONS_UNDER.length, ch.neon ? { swatch: NEONS_UNDER[ch.neon].h } : null));
     g.push({ t: 'Plaka: ' + ch.plate, a: openPlateEditor });
-    g.push({ t: 'Tamam', a: function () { backToMenu(1); } });
+    if (state === 'pad') { g.push({ t: 'Yarışı başlat ▶', a: function () { padSend({ t: 'start' }); } }); g.push({ t: 'Bağlantıyı kes', a: padLeave }); }
+    else g.push({ t: 'Tamam', a: function () { backToMenu(1); } });
     return g;
   }
   if (state === 'pause') return [
     { t: 'Devam et', a: resumeGame },
-    { t: 'Yeniden başla', a: startRace },
-    { t: 'Ana menü', a: toMenu }
+    { t: 'Yeniden başla', a: NET.role === 'host' ? hostStartRace : startRace },
+    NET.role === 'host' ? { t: 'Lobiye dön', a: hostToLobby } : { t: 'Ana menü', a: toMenu }
   ];
-  if (state === 'results' && resultsT > 1.2) return [{ t: 'Tekrar yarış', a: startRace }, { t: 'Ana menü', a: toMenu }];
+  if (state === 'results' && resultsT > 1.2) return NET.role === 'host'
+    ? [{ t: 'Tekrar yarış', a: hostStartRace }, { t: 'Lobiye dön', a: hostToLobby }]
+    : [{ t: 'Tekrar yarış', a: startRace }, { t: 'Ana menü', a: toMenu }];
   return [];
 }
 function menuMove(d) { var it = menuItems(); if (!it.length) return; menu.userScroll = false; menu.focus = (menu.focus + d + it.length) % it.length; beep(520, 0.04, 'triangle', 0.05); }
@@ -2112,6 +2378,9 @@ function menuSelect() { var it = menuItems(); if (!it.length) return; initAudio(
 function menuToggle(d) { var it = menuItems(); if (!it.length) return; var x = it[clamp(menu.focus, 0, it.length - 1)]; if (x.toggle) { x.a(d); beep(620, 0.04, 'triangle', 0.05); } }
 function goBack() {
   if (plateOpen) { closePlateEditor(false); return; }
+  if (state === 'lobby') { stopNet(); toMenu(); return; }
+  if (state === 'padjoin') { stopNet(); backToMenu(1); return; }
+  if (state === 'pad') { if (NET.padState === 'lobby') padLeave(); else if (NET.padState === 'pause') padSend({ t: 'resume' }); else if (isPadRacing()) padSend({ t: 'pause' }); return; }
   if (state === 'pause') resumeGame();
   else if (state === 'results') toMenu();
   else if (state === 'settings') backToMenu(3);
@@ -2119,13 +2388,19 @@ function goBack() {
   else if (state === 'menu') exitApp();
   else pauseGame();
 }
-function isMenuState() { return state === 'menu' || state === 'settings' || state === 'garage' || state === 'pause' || (state === 'results' && resultsT > 1.2); }
+function isMenuState() { return state === 'menu' || state === 'settings' || state === 'garage' || state === 'pause' || state === 'lobby' || state === 'padjoin' || (state === 'results' && resultsT > 1.2) || (state === 'pad' && !isPadRacing()); }
 
 // ---------------- Plaka yazma ----------------
 var plateInput = document.getElementById('plate'), plateOpen = false;
-function openPlateEditor() {
+var inputMode = 'plate';
+function openCodeEditor() { inputMode = 'code'; openTextBox(); }
+function openPlateEditor() { inputMode = 'plate'; openTextBox(); }
+function openTextBox() {
   plateOpen = true;
-  plateInput.value = choices[gIdx].plate;
+  plateInput.value = inputMode === 'code' ? (NET.joinCode || '') : choices[gIdx].plate;
+  plateInput.setAttribute('inputmode', inputMode === 'code' ? 'numeric' : 'text');
+  plateInput.maxLength = inputMode === 'code' ? 4 : 10;
+  plateInput.placeholder = inputMode === 'code' ? 'KOD' : 'PLAKA';
   plateInput.style.display = 'block';
   try { plateInput.focus(); plateInput.select(); } catch (e) {}
   setTimeout(function () { try { if (document.activeElement !== plateInput) plateInput.focus(); } catch (e) {} }, 60);
@@ -2133,6 +2408,13 @@ function openPlateEditor() {
 function closePlateEditor(apply) {
   if (!plateOpen) return;
   plateOpen = false;
+  if (apply && inputMode === 'code') {
+    NET.joinCode = (plateInput.value || '').replace(/\D/g, '').slice(0, 4);
+    plateInput.style.display = 'none';
+    try { plateInput.blur(); glCanvas.focus(); } catch (e) {}
+    if (NET.joinCode.length === 4) { menu.focus = 1; padConnect(); }
+    return;
+  }
   if (apply) {
     var v = (plateInput.value || '').toLocaleUpperCase('tr-TR').replace(/[^A-Z0-9ÇĞİÖŞÜ ]/g, '').replace(/\s+/g, ' ').trim().slice(0, 10);
     if (v.length) choices[gIdx].plate = v;
@@ -2177,6 +2459,7 @@ document.addEventListener('keydown', function (e) {
   if ([37, 38, 39, 40, 32, 13, 8].indexOf(k) >= 0) e.preventDefault();
   var repeat = !!held[k]; held[k] = true;
   if (state === 'loading') return;
+  if (isPadRacing()) { setKey(k, true); if (!repeat && (k === 13 || k === 27 || k === 8)) padSend({ t: 'pause' }); if (!repeat && k === 67) padSend({ t: 'cam' }); return; }
   if (state === 'race' || state === 'countdown') {
     setKey(k, true);
     if (!repeat && (k === 13 || k === 27 || k === 10009 || k === 80 || k === 8)) pauseGame();
@@ -2229,7 +2512,7 @@ function inRect(p, r) { return p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p
 function hitItem(p) { for (var i = 0; i < hitRects.length; i++) if (inRect(p, hitRects[i])) return hitRects[i]; return null; }
 function readTouches(list) {
   for (var i = 0; i < 2; i++) { var t0 = touchIn[i]; t0.left = t0.right = t0.gas = t0.brake = t0.hand = false; }
-  if (state !== 'race' && state !== 'countdown') return;
+  if (state !== 'race' && state !== 'countdown' && !isPadRacing()) return;
   for (i = 0; i < list.length; i++) {
     var p = toCanvas(list[i]), vi = 0;
     for (var j = 0; j < views.length; j++) if (inRect(p, views[j])) vi = j;
@@ -2247,15 +2530,19 @@ glCanvas.addEventListener('touchstart', function (e) {
   e.preventDefault(); isTouch = true; initAudio();
   for (var i = 0; i < e.changedTouches.length; i++) {
     var p = toCanvas(e.changedTouches[i]);
-    if (state === 'race' || state === 'countdown') {
+    if (isPadRacing()) {
+      var tbp = topButtons();
+      if (inRect(p, tbp.pause)) { padSend({ t: 'pause' }); continue; }
+      if (tbp.cams[0] && inRect(p, tbp.cams[0])) { padSend({ t: 'cam' }); continue; }
+    } else if (state === 'race' || state === 'countdown') {
       var tb = topButtons();
       if (inRect(p, tb.pause)) { pauseGame(); return; }
       for (var ci = 0; ci < tb.cams.length; ci++) if (inRect(p, tb.cams[ci])) cycleCam(tb.cams[ci].p);
     } else if (isMenuState()) {
-      if (state === 'garage' && garageOk && inRect(p, garageOk)) { tapOk = true; tapStartItem = -1; continue; }
+      if (isGarageLike() && garageOk && inRect(p, garageOk)) { tapOk = true; tapStartItem = -1; continue; }
       var h = hitItem(p); tapStartItem = h ? h.i : -1;
       if (menu.listRect && inRect(p, menu.listRect)) listDrag = { y: p.y, scroll: menu.scroll, moved: false };
-      if (state === 'garage' && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
+      if (isGarageLike() && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
     }
   }
   readTouches(e.touches);
@@ -2273,7 +2560,7 @@ glCanvas.addEventListener('touchmove', function (e) {
 glCanvas.addEventListener('touchend', function (e) {
   e.preventDefault();
   var pe = toCanvas(e.changedTouches[0]);
-  if (tapOk) { tapOk = false; if (state === 'garage' && garageOk && inRect(pe, garageOk)) { beep(620, 0.05, 'triangle', 0.05); backToMenu(1); } }
+  if (tapOk) { tapOk = false; if (isGarageLike() && garageOk && inRect(pe, garageOk)) { beep(620, 0.05, 'triangle', 0.05); if (state === 'pad') padSend({ t: 'start' }); else backToMenu(1); } }
   if (isMenuState() && tapStartItem >= 0 && !(listDrag && listDrag.moved)) {
     var h = hitItem(pe), items = menuItems();
     if (h && h.i === tapStartItem && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(pe.x < h.x + h.w * 0.35 ? -1 : 1); }
@@ -2306,7 +2593,7 @@ glCanvas.addEventListener('mousedown', function (e) {
   var p = toCanvas(e);
   if (isMenuState()) {
     var h = hitItem(p), items = menuItems();
-    if (state === 'garage' && garageOk && inRect(p, garageOk)) { backToMenu(1); return; }
+    if (isGarageLike() && garageOk && inRect(p, garageOk)) { if (state === 'pad') padSend({ t: 'start' }); else backToMenu(1); return; }
     if (h && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(p.x < h.x + h.w * 0.35 ? -1 : 1); }
     else if (state === 'garage' && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
   }
@@ -2369,6 +2656,8 @@ function frame(now) {
   if (rawDt > 0 && rawDt < 0.5) adaptResolution(rawDt);
   if (state === 'loading') { drawHUD2D(dt); return; }
   pollPads();
+  netUpdate(dt);
+  if (state === 'pad') { render3D(dt); drawHUD2D(dt); return; }
   if (state !== 'pause' && state !== 'garage') updateRace(dt);
   updateCarMeshes(dt);
   render3D(dt);
@@ -2402,7 +2691,7 @@ function runLoad() {
 applyQuality();
 requestAnimationFrame(frame);
 setTimeout(runLoad, 30);
-window.__game = { autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
+window.__game = { net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
 })();
 
 </script>
