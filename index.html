@@ -136,6 +136,9 @@ var ENGINE_SOUND = {
   ronin: { pulses: 2, harm: [1, 0.8, 0.5, 0.55, 0.3, 0.32, 0.2, 0.22, 0.14, 0.12, 0.08, 0.08], sub: 0.12, lope: 0.07, idle: 950, red: 7600, turbo: 1, grit: 2.6, body: 230, bright: 1.2 },
   kaze: { pulses: 3, harm: [1, 0.5, 0.7, 0.28, 0.45, 0.25, 0.2, 0.2, 0.12, 0.1, 0.07, 0.06], sub: 0.14, lope: 0.03, idle: 900, red: 8000, turbo: 1, grit: 1.6, body: 190, bright: 1.15 },
   vento: { pulses: 2, harm: [1, 0.7, 0.45, 0.5, 0.28, 0.3, 0.16, 0.18, 0.1, 0.1, 0.06, 0.05], sub: 0.08, lope: 0.06, idle: 900, red: 7000, turbo: 0, grit: 2.2, body: 260, bright: 1.1 },
+  yildiz: { pulses: 2, harm: [1, 0.9, 0.55, 0.6, 0.35, 0.3, 0.22, 0.18, 0.14, 0.1, 0.08, 0.06], sub: 0.1, lope: 0.12, idle: 780, red: 6000, turbo: 0, grit: 2.8, body: 190, bright: 0.8 },
+  nami: { pulses: 2, harm: [1, 0.6, 0.55, 0.45, 0.35, 0.34, 0.22, 0.22, 0.16, 0.14, 0.1, 0.1], sub: 0.05, lope: 0.03, idle: 950, red: 8700, turbo: 0, grit: 2.0, body: 290, bright: 1.4 },
+  arashi: { pulses: 2, harm: [1, 0.85, 0.5, 0.58, 0.32, 0.34, 0.2, 0.24, 0.14, 0.12, 0.08, 0.08], sub: 0.14, lope: 0.08, idle: 950, red: 7400, turbo: 1, grit: 3.0, body: 215, bright: 1.15 },
   argo: { pulses: 4, harm: [1, 0.85, 0.5, 0.62, 0.3, 0.38, 0.18, 0.26, 0.12, 0.15, 0.06, 0.08], sub: 0.6, lope: 0.24, idle: 700, red: 6600, turbo: 0, grit: 3.2, body: 115, bright: 0.8 }
 };
 function shaperCurve(k) {
@@ -1266,9 +1269,18 @@ var CAR_MODELS = {
     power: 231, mass: 1360, grip: 1.05, drag: 0.319, drive: 'fwd', exhaust: 2 },
   argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.85, W: 1.98, wb: 2.8, fo: 0.95, r: 0.375, clr: 0.12, nose: 0.7, hood: 0.94, belt: 0.96,
     cowl: 2.55, roofF: 1.95, roofR: 1.15, roofH: 1.28, deckX: 0.62, deck: 0.96, tail: 0.95, gw: 0.74,
-    power: 257, mass: 1510, grip: 1.05, drag: 0.354, drive: 'rwd', stripes: true, exhaust: 2 }
+    power: 257, mass: 1510, grip: 1.05, drag: 0.354, drive: 'rwd', stripes: true, exhaust: 2 },
+  yildiz: { name: 'Yıldız 1.6', type: 'Klasik sedan', L: 4.4, W: 1.7, wb: 2.45, fo: 0.86, r: 0.315, clr: 0.16, nose: 0.76, hood: 0.9, belt: 0.93,
+    cowl: 2.85, roofF: 2.3, roofR: 1.05, roofH: 1.41, deckX: 0.6, deck: 0.95, tail: 0.93, gw: 0.86, bodyN: 9, glassN: 7,
+    power: 197, mass: 1100, grip: 1.05, drag: 0.25, drive: 'rwd', classic: true, exhaust: 1 },
+  nami: { name: 'Nami R', type: 'Kompakt spor', L: 4.15, W: 1.74, wb: 2.6, fo: 0.84, r: 0.33, clr: 0.13, nose: 0.66, hood: 0.86, belt: 0.92,
+    cowl: 2.9, roofF: 2.25, roofR: 0.62, roofH: 1.35, deckX: 0.2, deck: 0.95, tail: 0.92, gw: 0.8, bodyN: 4.6,
+    power: 205, mass: 1150, grip: 1.05, drag: 0.262, drive: 'fwd', exhaust: 1 },
+  arashi: { name: 'Arashi R', type: 'Ralli sedanı', L: 4.5, W: 1.86, wb: 2.63, fo: 0.9, r: 0.35, clr: 0.15, nose: 0.7, hood: 0.95, belt: 0.98,
+    cowl: 2.9, roofF: 2.25, roofR: 1.02, roofH: 1.43, deckX: 0.58, deck: 1.0, tail: 0.98, gw: 0.8, bodyN: 6.5,
+    power: 241, mass: 1420, grip: 1.05, drag: 0.333, drive: 'awd', scoop: true, exhaust: 1, wideFlare: true }
 };
-var MODEL_KEYS = ['kaiser', 'ronin', 'kaze', 'vento', 'argo'];
+var MODEL_KEYS = ['kaiser', 'ronin', 'kaze', 'vento', 'argo', 'yildiz', 'nami', 'arashi'];
 var PAINTS = [
   { n: 'Beyaz', h: '#e9e8e3' }, { n: 'Siyah', h: '#131417' }, { n: 'Gümüş', h: '#a8adb3' }, { n: 'Füme', h: '#474b52' },
   { n: 'Kırmızı', h: '#b81d1d' }, { n: 'Turuncu', h: '#e0621f' }, { n: 'Sarı', h: '#e8b41c' }, { n: 'Yeşil', h: '#1f7a45' },
@@ -1519,7 +1531,7 @@ var BODY_N = 5.0;
 function sideZ(s, prof, x, y) {
   var top = bodyTop(s, prof, x), bot = bodyBot(s, x), mid = (top + bot) / 2, hh = (top - bot) / 2, w = bodyHalfW(s, x);
   var yy = clamp((y - mid) / hh, -1, 1);
-  var z = w * Math.pow(Math.max(0, 1 - Math.pow(Math.abs(yy), BODY_N)), 1 / BODY_N);
+  var BN = s.bodyN || BODY_N, z = w * Math.pow(Math.max(0, 1 - Math.pow(Math.abs(yy), BN)), 1 / BN);
   return z * (1 - 0.07 * Math.max(0, yy));
 }
 function archY(s, x) {
@@ -1542,7 +1554,7 @@ function loftBody(s, prof, gw) {
     var x = xs[i], top = bodyTop(s, prof, x), bot = bodyBot(s, x), mid = (top + bot) / 2, hh = (top - bot) / 2, w = bodyHalfW(s, x), ay = archY(s, x);
     for (j = 0; j < ring; j++) {
       var a = j / ring * Math.PI * 2;
-      var yy = spe(Math.sin(a), BODY_N), zz = spe(Math.cos(a), BODY_N);
+      var yy = spe(Math.sin(a), s.bodyN || BODY_N), zz = spe(Math.cos(a), s.bodyN || BODY_N);
       var y = mid + hh * yy, z = w * zz * (1 - 0.07 * Math.max(0, yy));
       pos.push(x, y, z);
       if (ay > 0 && yy < 0.1 && Math.abs(zz) > 0.5) y = Math.max(y, Math.min(ay, top - 0.1));
@@ -1581,7 +1593,7 @@ function loftGreenhouse(s, prof, gw) {
     var hw = gw / 2;
     for (j = 0; j <= ring; j++) {
       var a = j / ring * Math.PI;             // 0 sağ yan, PI/2 tavan, PI sol yan
-      var yy = spe(Math.sin(a), 3.2), zz = spe(Math.cos(a), 3.2);
+      var yy = spe(Math.sin(a), s.glassN || 3.2), zz = spe(Math.cos(a), s.glassN || 3.2);
       var y = base + (top - base) * yy, z = hw * zz * (1 - 0.2 * yy);
       pos.push(x, y, z);
     }
@@ -1644,25 +1656,37 @@ function buildCar(ch) {
     body.add(box(0.09, 0.025, 0.1, M.gloss, s.roofF - 0.02, s.belt + 0.0, sd * (gw / 2 * 0.95 + 0.04)));
     // yan hava çıkışı (ön tekerlek arkası)
     var vx = L - s.fo - s.r - 0.28, vy = s.clr + (bodyTop(s, prof, vx) - s.clr) * 0.55;
-    for (var vv = 0; vv < 3; vv++) body.add(box(0.2, 0.018, 0.012, M.gloss, vx, vy + vv * 0.045, sd * (sideZ(s, prof, vx, vy + vv * 0.045) + 0.003), 0.35));
+    if (s.classic) {
+      // klasik: yan koruma bandı
+      for (var mq = 0; mq < 8; mq++) { var mx = 0.45 + (L - 1.0) * (mq + 0.5) / 8, my = s.clr + (bodyTop(s, prof, mx) - s.clr) * 0.42; body.add(box((L - 1.0) / 8 + 0.01, 0.045, 0.02, M.trim, mx, my, sd * (sideZ(s, prof, mx, my) + 0.008))); }
+    } else for (var vv = 0; vv < 3; vv++) body.add(box(0.2, 0.018, 0.012, M.gloss, vx, vy + vv * 0.045, sd * (sideZ(s, prof, vx, vy + vv * 0.045) + 0.003), 0.35));
     // farlar
     var ftop = bodyTop(s, prof, L), fwh = bodyHalfW(s, L);
+    if (s.classic) {
+      body.add(box(0.05, 0.17, 0.38, M.chrome, L - 0.012, ftop - 0.13, sd * (fwh - 0.25)));
+      body.add(box(0.03, 0.13, 0.33, M.head, L + 0.005, ftop - 0.13, sd * (fwh - 0.25)));
+      body.add(box(0.03, 0.07, 0.1, new THREE.MeshStandardMaterial({ color: 0xff9a1a, emissive: 0xff7a00, emissiveIntensity: 0.4 }), L - 0.005, ftop - 0.33, sd * (fwh - 0.12)));
+    } else {
     body.add(box(0.07, 0.08, 0.5, M.gloss, L - 0.025, ftop - 0.05, sd * (fwh - 0.3)));
     body.add(box(0.03, 0.016, 0.48, M.head, L - 0.004, ftop - 0.018, sd * (fwh - 0.3)));
-    [0.42, 0.2].forEach(function (off) {
+    }
+    if (!s.classic) [0.42, 0.2].forEach(function (off) {
       var pj = new THREE.CylinderGeometry(0.03, 0.03, 0.03, 12); pj.rotateZ(Math.PI / 2);
       var pm = new THREE.Mesh(pj, M.head); pm.position.set(L - 0.005, ftop - 0.058, sd * (fwh - off)); body.add(pm);
     });
     // çamurluk kasları
     [L - s.fo, L - s.fo - s.wb].forEach(function (xa) {
-      var fl = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.09, 0.045, 6, 20, Math.PI), paint);
+      var fl = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.09, s.wideFlare ? 0.06 : 0.045, 6, 20, Math.PI), paint);
       var fsy = Math.min(1, (bodyTop(s, prof, xa) - 0.035 - s.r) / (s.r + 0.09));
-      fl.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.05)); fl.scale.set(1, fsy, 1.5); body.add(fl);
+      fl.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.05)); fl.scale.set(1, fsy, s.wideFlare ? 2.2 : 1.5); if (!s.classic) body.add(fl);
       var lip = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.055, 0.018, 5, 20, Math.PI), M.trim);
       lip.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.02)); lip.scale.y = fsy; body.add(lip);
     });
     // stoplar
-    body.add(box(0.05, 0.085, 0.36, tail, 0.0, s.tail - 0.21, sd * (bodyHalfW(s, 0) - 0.27)));
+    if (s.classic) {
+      body.add(box(0.05, 0.17, 0.36, tail, 0.0, s.tail - 0.24, sd * (bodyHalfW(s, 0) - 0.3)));
+      body.add(box(0.05, 0.17, 0.12, new THREE.MeshStandardMaterial({ color: 0xff9a1a, emissive: 0xff7a00, emissiveIntensity: 0.3 }), 0.0, s.tail - 0.24, sd * (bodyHalfW(s, 0) - 0.07)));
+    } else body.add(box(0.05, 0.085, 0.36, tail, 0.0, s.tail - 0.21, sd * (bodyHalfW(s, 0) - 0.27)));
     // kapı çizgisi ve kolu
     for (var dq = 0; dq < 6; dq++) { var yd = s.clr + 0.12 + (bodyTop(s, prof, xd) - 0.22 - s.clr - 0.12) * (dq + 0.5) / 6; body.add(box(0.01, (bodyTop(s, prof, xd) - 0.34 - s.clr) / 6 + 0.01, 0.01, M.trim, xd, yd, zs(xd, yd))); }
     body.add(box(0.15, 0.025, 0.012, M.chrome, xd - 0.25, bodyTop(s, prof, xd - 0.25) - 0.2, zs(xd - 0.25, bodyTop(s, prof, xd - 0.25) - 0.2)));
@@ -1679,6 +1703,16 @@ function buildCar(ch) {
   [-1, 1].forEach(function (sd) { body.add(box(0.12, 0.22, 0.34, M.interior, s.roofR + (s.roofF - s.roofR) * 0.35, Math.min(s.belt + 0.2, s.roofH - 0.26), sd * 0.34)); });
   // ön panjur ve tampon
   var ft = bodyTop(s, prof, L), fb = bodyBot(s, L), fh = ft - fb, fw = bodyHalfW(s, L) * 2;
+  if (s.classic) {
+    body.add(box(0.03, 0.17, fw * 0.36, M.grille, L - 0.005, ft - 0.13, 0));
+    body.add(box(0.035, 0.014, fw * 0.37, M.chrome, L, ft - 0.04, 0)); body.add(box(0.035, 0.014, fw * 0.37, M.chrome, L, ft - 0.22, 0));
+    body.add(box(0.12, 0.075, fw * 1.02, M.chrome, L + 0.03, fb + 0.07, 0));
+    body.add(box(0.13, 0.028, fw * 1.03, M.trim, L + 0.035, fb + 0.07, 0));
+    body.add(box(0.12, 0.075, W * 0.98, M.chrome, -0.03, s.clr + 0.18, 0));
+    body.add(box(0.13, 0.028, W * 0.99, M.trim, -0.035, s.clr + 0.18, 0));
+    body.add(box(0.03, 0.14, W * 0.4, M.trim, -0.004, s.tail - 0.24, 0));
+    var mast = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.008, 0.7, 5), M.chrome); mast.position.set(L - 0.75, s.hood + 0.35, W / 2 - 0.12); mast.rotation.z = 0.35; body.add(mast);
+  } else {
   body.add(box(0.03, fh * 0.16, fw * 0.36, M.grille, L - 0.012, fb + fh * 0.66, 0));
   body.add(box(0.03, fh * 0.3, fw * 0.62, M.grille, L - 0.012, fb + fh * 0.24, 0));
   [-1, 1].forEach(function (sd) { body.add(box(0.03, fh * 0.26, 0.2, M.grille, L - 0.012, fb + fh * 0.26, sd * (fw / 2 - 0.2))); });
@@ -1688,6 +1722,7 @@ function buildCar(ch) {
   body.add(box(0.03, 0.022, W * 0.62, tail, -0.008, s.tail - 0.19, 0));
   body.add(box(0.03, 0.07, W * 0.5, M.gloss, -0.004, s.tail - 0.24, 0));
   body.add(box(0.2, 0.05, 0.03, M.trim, s.roofR + 0.18, s.roofH + 0.025, 0, 0.3));
+  }
   var exN = s.exhaust;
   for (var e = 0; e < exN; e++) {
     var ez = exN === 1 ? W * 0.3 : (e === 0 ? -1 : 1) * W * 0.3;
@@ -1704,7 +1739,7 @@ function buildCar(ch) {
     for (var hv = 0; hv < 4; hv++) body.add(box(0.03, 0.012, 0.3, M.gloss, hx2 + hv * 0.07, bodyTop(s, prof, hx2 + hv * 0.07) + 0.002, sd * 0.45));
   });
   // far camı
-  [-1, 1].forEach(function (sd) {
+  if (!s.classic) [-1, 1].forEach(function (sd) {
     var glassCover = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.54), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, roughness: 0.02, metalness: 0.1, envMapIntensity: 2, depthWrite: false }));
     glassCover.position.set(L - 0.02, bodyTop(s, prof, L) - 0.045, sd * (bodyHalfW(s, L) - 0.3)); glassCover.userData.keep = true; body.add(glassCover);
   });
@@ -2023,7 +2058,7 @@ function updateRival(r, dt, moving) {
 // KARİYER: profiller, para, satın alma, geliştirmeler, oyun modları
 // ======================================================================
 var SAVE_KEY = 'geceYarisi.kariyer.v1';
-var CAR_PRICE = { vento: 0, kaiser: 20000, ronin: 26000, kaze: 32000, argo: 40000 };
+var CAR_PRICE = { vento: 0, yildiz: 6000, nami: 16000, kaiser: 20000, ronin: 26000, arashi: 30000, kaze: 32000, argo: 40000 };
 var UPGRADES = [
   { key: 'engine', name: 'Motor', prices: [6000, 12000, 20000] },
   { key: 'nitro', name: 'Nitro', prices: [5000, 10000, 16000] },
