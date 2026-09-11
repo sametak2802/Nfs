@@ -2212,6 +2212,7 @@ function updateChase(dt) {
 var RACE_PRIZE = [6000, 3500, 2200, 1400, 900, 600], DIFF_MULT = [1, 1.4, 1.9];
 function computeRewards() {
   raceId++;
+  hostCountRace();
   var scores = players.map(function (p) { return Math.round((p.drift || 0) + (p.combo || 0)); });
   players.forEach(function (p, i) {
     var earn = 0;
@@ -2240,19 +2241,19 @@ function buildResults() {
   function earnTxt(p, i) { var pr = NET.role === 'host' ? true : profileOf(i); return pr ? '  +' + fmtTL(p.earned || 0) : '  (misafir)'; }
   if (gameMode === 'race') {
     if (players.length === 1) { var p0 = players[0]; title = p0.rank === 1 ? 'Birinci oldun!' : p0.rank + '. oldun'; lines.push('Toplam ' + fmt(p0.finishTime) + ', en iyi tur ' + fmt(p0.best)); lines.push('Pist rekoru ' + fmt(trackRecords().lap) + (p0.newRecord ? '  (yeni rekor!)' : '')); lines.push('Kazanç' + earnTxt(p0, 0)); }
-    else { var a = players[0], b = players[1]; title = a.rank === b.rank ? 'Berabere' : ((a.rank < b.rank ? '1' : '2') + '. oyuncu kazandı'); players.forEach(function (pk, k) { lines.push((k + 1) + '. oyuncu: ' + pk.rank + '. sıra' + earnTxt(pk, k)); }); }
+    else { var a = players[0], b = players[1]; title = a.rank === b.rank ? 'Berabere' : (playerName(a.rank < b.rank ? a : b) + ' kazandı'); players.forEach(function (pk, k) { lines.push(playerName(pk) + ': ' + pk.rank + '. sıra' + earnTxt(pk, k)); }); }
   } else if (gameMode === 'tt') {
     var anyNew = players.some(function (p) { return p.newRecord; });
     title = anyNew ? 'Yeni pist rekoru!' : 'Zamana karşı bitti';
-    players.forEach(function (pk, k) { lines.push((players.length > 1 ? (k + 1) + '. oyuncu: ' : '') + 'en iyi tur ' + fmt(pk.best) + ', toplam ' + fmt(pk.finishTime) + earnTxt(pk, k)); });
+    players.forEach(function (pk, k) { lines.push((players.length > 1 ? playerName(pk) + ': ' : '') + 'en iyi tur ' + fmt(pk.best) + ', toplam ' + fmt(pk.finishTime) + earnTxt(pk, k)); });
     lines.push('Pist rekoru ' + fmt(trackRecords().lap) + (trackRecords().by ? ' (' + trackRecords().by + ')' : ''));
   } else if (gameMode === 'drift') {
     var sc = players.map(function (p) { return Math.round((p.drift || 0) + (p.combo || 0)); });
-    title = players.length === 1 ? 'Drift puanı: ' + sc[0] : (sc[0] === sc[1] ? 'Berabere' : (sc[0] > sc[1] ? '1' : '2') + '. oyuncu kazandı');
-    players.forEach(function (pk, k) { lines.push((players.length > 1 ? (k + 1) + '. oyuncu: ' : 'Puan: ') + sc[k] + earnTxt(pk, k)); });
+    title = players.length === 1 ? 'Drift puanı: ' + sc[0] : (sc[0] === sc[1] ? 'Berabere' : playerName(sc[0] > sc[1] ? players[0] : players[1]) + ' kazandı');
+    players.forEach(function (pk, k) { lines.push((players.length > 1 ? playerName(pk) + ': ' : 'Puan: ') + sc[k] + earnTxt(pk, k)); });
   } else {
     title = players.length === 1 ? (players[0].escaped ? 'Kaçtın!' : 'Yakalandın') : 'Kaçış bitti';
-    players.forEach(function (pk, k) { lines.push((players.length > 1 ? (k + 1) + '. oyuncu: ' : '') + (pk.escaped ? 'kaçtı, ' + fmt(pk.finishTime) : 'yakalandı, ' + fmt(pk.finishTime)) + earnTxt(pk, k)); });
+    players.forEach(function (pk, k) { lines.push((players.length > 1 ? playerName(pk) + ': ' : '') + (pk.escaped ? 'kaçtı, ' + fmt(pk.finishTime) : 'yakalandı, ' + fmt(pk.finishTime)) + earnTxt(pk, k)); });
   }
   return { title: title, lines: lines };
 }
@@ -2306,7 +2307,7 @@ function ttCrossing(p, lapTime) {
     var R = trackRecords();
     if (R.lap === null || lapTime < R.lap) {
       R.lap = Math.round(lapTime * 100) / 100;
-      R.by = profileOf(p.id) ? profileOf(p.id).name : (p.id + 1) + '. oyuncu';
+      R.by = playerName(p);
       R.car = p.choice.model;
       if (gameMode === 'tt' && players.length === 1 && p.rec && p.rec.x.length > 20) {
         var c = p.choice;
@@ -2346,7 +2347,7 @@ function ttDelta(p) {
 
 // ---------------- Ayarların kaydı ----------------
 var lastSettings = '';
-function settingsSnapshot() { return JSON.stringify({ fc: freeCars, d: difficulty, a: assist, g: autoGas, st: steerMode, hq: hq, snd: soundOn, tr: trackIdx, md: modeIdx, np: numPlayers }); }
+function settingsSnapshot() { return JSON.stringify({ cd: camDist, chh: camHeight, fc: freeCars, d: difficulty, a: assist, g: autoGas, st: steerMode, hq: hq, snd: soundOn, tr: trackIdx, md: modeIdx, np: numPlayers }); }
 function applySavedSettings() {
   var S = SAVE.settings;
   if (S) {
@@ -2357,6 +2358,7 @@ function applySavedSettings() {
     if (S.md >= 0 && S.md < MODES.length) modeIdx = S.md;
     numPlayers = S.np === 2 ? 2 : 1;
     if (S.fc !== undefined) freeCars = !!S.fc;
+    if (S.cd >= 0 && S.cd <= 2) camDist = S.cd; if (S.chh >= 0 && S.chh <= 2) camHeight = S.chh;
   }
   lastSettings = settingsSnapshot();
 }
@@ -2370,6 +2372,7 @@ function autosaveSettings() {
 // OYUN AKIŞI, KAMERA, ÇİZİM
 // ======================================================================
 var DEBUG = { bot: false, input: null };
+var camDist = 1, camHeight = 1;
 var attractCam = new THREE.PerspectiveCamera(55, 1.6, 0.1, 5000), attractT = 0;
 var garageScene = null, garageCam = new THREE.PerspectiveCamera(38, 1.4, 0.1, 100), garageCar = null, garageKey = '';
 
@@ -2592,7 +2595,7 @@ function updateCamera(p, dt, aspect) {
   var shx = (Math.random() - 0.5) * p.shake * 0.25, shy = (Math.random() - 0.5) * p.shake * 0.2;
   var fast = Math.max(0, speed - 30) / 40;
   if (mode <= 1) {
-    var back = mode === 0 ? 6.8 : 4.9, up = mode === 0 ? 2.35 : 1.6;
+    var back = (mode === 0 ? 5.6 : 4.5) * [0.82, 1, 1.22][camDist], up = (mode === 0 ? 2.1 : 1.95) * [0.78, 1, 1.3][camHeight];
     var tx = p.x - dx * back, tz = p.z - dz * back, ty = p.y + up;
     if (!p.camPos) { p.camPos = new THREE.Vector3(tx, ty, tz); }
     var k = 1 - Math.exp(-dt * (mode === 0 ? 10 : 13));
@@ -2601,7 +2604,7 @@ function updateCamera(p, dt, aspect) {
     var cx = p.camPos.x - p.x, cz = p.camPos.z - p.z, cd = Math.hypot(cx, cz);
     if (cd < back * 0.75) { p.camPos.x = p.x + cx / cd * back * 0.75; p.camPos.z = p.z + cz / cd * back * 0.75; }
     cam.position.set(p.camPos.x + shx, p.camPos.y + shy + fast * 0.05 * Math.sin(raceT * 40), p.camPos.z);
-    cam.lookAt(p.x + sp * 6, p.y + (mode === 0 ? 1.1 : 1.0), p.z + cp * 6);
+    cam.lookAt(p.x + sp * 6, p.y + (mode === 0 ? 1.0 : 0.85) + (camHeight - 1) * 0.15, p.z + cp * 6);
     p.fovKick = lerp(p.fovKick || 0, p.boosting ? 9 : 0, 1 - Math.exp(-dt * 4));
     cam.fov = baseFov(aspect) + Math.min(20, speed * 0.26) + p.fovKick;
   } else {
@@ -2827,6 +2830,7 @@ function drawViewHUD(p, v) {
   ctx.save(); ctx.translate(v.x, v.y);
   ctx.beginPath(); ctx.rect(0, 0, W, H); ctx.clip();
   var ph = drawPanel(p, u, u * 3, u * 3);
+  if (players.length > 1 || NET.role === 'host') txtShadow(playerName(p), u * 3.5, u * 3 + ph + u * (isTouch ? 30 : 4.5), u * 4, COL.paper, 'left', 'middle');
   if (isTouch) {
     drawMinimap(p, u, u * 3, u * 3 + ph + u * 2.5, u * 24);
     drawGauge(p, u, W - u * 12.5, u * 12.5, u * 10);
@@ -2855,7 +2859,7 @@ function drawViewHUD(p, v) {
   if (isTouch && (state === 'race' || state === 'countdown') && !p.finished) drawTouch(p, u);
   ctx.restore();
 }
-var CAM_NAMES = ['uzak', 'yakın', 'kaput', 'tampon'];
+var CAM_NAMES = ['arka', 'yakın arka', 'kaput', 'tampon'];
 
 function touchLayout(w, h) {
   var big = state === 'pad' ? 1.4 : 1, r = Math.min(h * 0.115, w * 0.08) * big, pad = Math.max(h * 0.04, r * 0.35);
@@ -3033,6 +3037,8 @@ function drawLoading() {
 function drawHUD2D(dt) {
   drawHUD2DInner(dt);
   if (flashMsg) { flashMsg.time -= dt; drawFlash(Math.min(SH, SW * 0.75) / 100); }
+  if (NET.greet) NET.greet.t -= dt;
+  drawGreet(Math.min(SH, SW * 0.75) / 100);
 }
 function drawHUD2DInner(dt) {
   ctx.clearRect(0, 0, SW, SH);
@@ -3081,7 +3087,7 @@ var PEER_PREFIX = 'geceyarisi-tv-';
 function netAvailable() { return typeof window.Peer === 'function'; }
 function stopNet() {
   try { if (NET.hostConn) NET.hostConn.close(); } catch (e) {}
-  for (var i = 0; i < 2; i++) { try { if (NET.conns[i]) NET.conns[i].close(); } catch (e) {} NET.conns[i] = null; remoteIn[i] = null; }
+  for (var i = 0; i < 2; i++) { try { if (NET.conns[i]) NET.conns[i].close(); } catch (e) {} NET.conns[i] = null; remoteIn[i] = null; if (NET.who) NET.who[i] = null; }
   try { if (NET.peer) NET.peer.destroy(); } catch (e) {}
   NET.peer = null; NET.hostConn = null; NET.role = null; NET.playerSlots = null; NET.slot = -1; NET.padState = 'lobby';
 }
@@ -3130,7 +3136,7 @@ function hostAccept(conn) {
   conn.on('error', function () { hostDrop(conn); });
 }
 function hostDrop(conn) {
-  if (conn.slot !== undefined && NET.conns[conn.slot] === conn) { NET.conns[conn.slot] = null; remoteIn[conn.slot] = null; beep(300, 0.2); }
+  if (conn.slot !== undefined && NET.conns[conn.slot] === conn) { if (NET.who[conn.slot]) NET.greet = { text: NET.who[conn.slot].name + ' ayrıldı', t: 2.5 }; NET.conns[conn.slot] = null; remoteIn[conn.slot] = null; NET.who[conn.slot] = null; beep(300, 0.2); }
 }
 function connectedSlots() { var a = []; for (var i = 0; i < 2; i++) if (NET.conns[i] && NET.conns[i].open) a.push(i); return a; }
 function playerIndexOfSlot(s) { for (var i = 0; i < players.length; i++) if (players[i].slot === s) return i; return -1; }
@@ -3138,6 +3144,7 @@ function hostMsg(slot, m) {
   if (!m || typeof m !== 'object') return;
   if (m.t === 'in') { remoteIn[slot] = { steer: clamp(+m.s || 0, -1, 1), gas: clamp(+m.g || 0, 0, 1), brake: clamp(+m.b || 0, 0, 1), hand: m.h ? 1 : 0, nitro: m.n ? 1 : 0, analog: !!m.a, t: Date.now() }; return; }
   if (m.t === 'choice' && m.ch) { choices[slot] = sanitizeChoice(m.ch); return; }
+  if (m.t === 'who') { hostWho(slot, m); return; }
   if (m.t === 'start') { if (state === 'lobby' || state === 'pause' || (state === 'results' && resultsT > 1.2)) hostStartRace(); return; }
   if (m.t === 'cam') { var pi = playerIndexOfSlot(slot); if (pi >= 0) cycleCam(pi); return; }
   if (m.t === 'pause') { if (state === 'race' || state === 'countdown') pauseGame(); return; }
@@ -3203,7 +3210,7 @@ function padMsg(m) {
   if (m.t === 'full') { NET.status = 'TV dolu: iki telefon zaten bağlı'; return; }
   if (m.t === 'welcome') {
     NET.slot = m.slot; state = 'pad'; NET.padState = 'lobby'; gIdx = 0; menu.focus = 0; menu.scroll = 0; menu.userScroll = false;
-    padLastChoice = ''; beep(880, 0.12); if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {}
+    padLastChoice = ''; NET.lastWho = ''; beep(880, 0.12); if (navigator.vibrate) try { navigator.vibrate(60); } catch (e) {}
     return;
   }
   if (m.t === 'st') {
@@ -3231,6 +3238,8 @@ function netUpdate(dt) {
     choices[0].up = upgradesFor(0, choices[0].model);
     var ck = JSON.stringify(choices[0]);
     if (ck !== padLastChoice) { padLastChoice = ck; padSend({ t: 'choice', ch: choices[0] }); }
+    var mp = profileOf(0), wk = realName(mp) + '|' + ensureUid(mp);
+    if (wk !== NET.lastWho) { NET.lastWho = wk; padSend({ t: 'who', name: realName(mp), uid: ensureUid(mp) }); }
     if (NET.padState === 'race' || NET.padState === 'countdown') {
       padInT -= dt;
       var inp = inputFor(0), k = inp.steer.toFixed(2) + '|' + inp.gas + '|' + inp.brake + '|' + inp.hand + '|' + inp.nitro;
@@ -3262,7 +3271,8 @@ function drawLobbyTV(hint) {
     ctx.fillStyle = on ? 'rgba(31,85,160,.95)' : 'rgba(242,239,230,.12)'; rr(ctx, rx, y, colW, u * 15, u * 2); ctx.fill();
     ctx.fillStyle = on ? PAINTS[ch.paint].h : 'rgba(255,255,255,.2)'; rr(ctx, rx + u * 2.5, y + u * 2.5, u * 10, u * 10, u * 1.5); ctx.fill();
     txt(String(s + 1), rx + u * 7.5, y + u * 7.8, u * 6, on && lum(PAINTS[ch.paint].h) > 0.6 ? COL.ink : '#fff', 'center', 'middle');
-    txt(on ? (s + 1) + '. oyuncu bağlı' : (s + 1) + '. oyuncu bekleniyor…', rx + u * 16, y + u * 6.5, u * 4.6, COL.paper, 'left', 'middle');
+    var who = NET.who[s], st = who && who.stats;
+    txt(on ? (who ? who.name : (s + 1) + '. oyuncu') + (st && st.races ? '  ·  ' + st.races + ' yarış, ' + (st.wins || 0) + ' galibiyet' : '') : (s + 1) + '. oyuncu bekleniyor…', rx + u * 16, y + u * 6.5, u * 4.6, COL.paper, 'left', 'middle');
     if (on) txt(CAR_MODELS[ch.model].name + ' · ' + PAINTS[ch.paint].n + ' · ' + ch.plate, rx + u * 16, y + u * 11.3, u * 3.4, COL.blueSoft, 'left', 'middle');
   }
   drawItems(menuItems(), rx, u * 48, colW, H - u * 60, u);
@@ -3289,6 +3299,58 @@ function drawPadController() {
   if (info.player < 0) txtShadow('Bu yarışta değilsin, yarış bitince katılırsın', W / 2, H * 0.52, u * 3.8, COL.paper, 'center', 'middle');
   drawTouch({ id: 0, finished: false }, u);
   drawTopButtons();
+}
+
+// ======================================================================
+// OYUNCU TANIMA: her telefon kendi adını ve kimliğini TV'ye gönderir,
+// TV oyuncuları hatırlar (yarış ve galibiyet sayısı)
+// ======================================================================
+NET.who = [null, null];
+function ensureUid(pr) {
+  if (!pr) return '';
+  if (!pr.uid) { pr.uid = 'u' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); persist(); }
+  return pr.uid;
+}
+function realName(pr) { return pr && pr.name && pr.name !== 'Oyuncu' ? pr.name : ''; }
+function playerName(p) {
+  if (!p) return '';
+  if (NET.role === 'host' && p.slot !== undefined && NET.who[p.slot]) return NET.who[p.slot].name;
+  var nm = realName(profileOf(p.id));
+  return nm || (p.id + 1) + '. oyuncu';
+}
+function hostWho(slot, m) {
+  var name = String(m.name || '').replace(/[<>]/g, '').trim().slice(0, 14) || (slot + 1) + '. oyuncu';
+  var uid = String(m.uid || '').slice(0, 24);
+  if (!SAVE.people) SAVE.people = {};
+  var known = uid && SAVE.people[uid];
+  var P = known || { races: 0, wins: 0 };
+  P.name = name; P.last = Date.now();
+  if (uid) { SAVE.people[uid] = P; persist(); }
+  var prev = NET.who[slot];
+  NET.who[slot] = { name: name, uid: uid, stats: P };
+  if (!prev || prev.uid !== uid) {
+    NET.greet = { text: (known ? 'Tekrar hoş geldin, ' : 'Hoş geldin, ') + name + '!', t: 3.5 };
+    beep(660, 0.08); setTimeout(function () { beep(990, 0.12); }, 90);
+  } else if (prev.name !== name) NET.greet = { text: prev.name + ' artık ' + name, t: 2.5 };
+}
+function hostCountRace() {
+  if (NET.role !== 'host') return;
+  players.forEach(function (p) {
+    var w = NET.who[p.slot]; if (!w || !w.stats) return;
+    w.stats.races = (w.stats.races || 0) + 1;
+    var won = players.length > 1 ? p.rank === 1 : (gameMode === 'race' && p.rank === 1);
+    if (won) w.stats.wins = (w.stats.wins || 0) + 1;
+  });
+  persist();
+}
+function drawGreet(u) {
+  var g = NET.greet; if (!g || g.t <= 0) return;
+  var a = Math.min(1, g.t);
+  ctx.globalAlpha = a;
+  setFont(ctx, u * 5); var w = ctx.measureText(g.text).width + u * 8;
+  ctx.fillStyle = 'rgba(245,197,24,.95)'; rr(ctx, (SW - w) / 2, SH * 0.78, w, u * 9, u * 2); ctx.fill();
+  txt(g.text, SW / 2, SH * 0.78 + u * 4.8, u * 5, COL.ink, 'center', 'middle');
+  ctx.globalAlpha = 1;
 }
 
 // ======================================================================
@@ -3339,6 +3401,8 @@ function menuItems() {
     var list = [
       { t: 'Rakipler: ' + DIFF_NAMES[difficulty], toggle: true, a: function (d) { difficulty = cyc(difficulty, 3, d); } },
       { t: 'Arabalar: ' + (freeCars ? 'hepsi açık' : 'satın alarak aç (kariyer)'), toggle: true, a: function () { freeCars = !freeCars; } },
+      { t: 'Kamera mesafesi: ' + ['yakın', 'normal', 'uzak'][camDist], toggle: true, a: function (d) { camDist = cyc(camDist, 3, d); players.forEach(function (p) { p.camPos = null; }); } },
+      { t: 'Kamera yüksekliği: ' + ['alçak', 'normal', 'yüksek'][camHeight], toggle: true, a: function (d) { camHeight = cyc(camHeight, 3, d); players.forEach(function (p) { p.camPos = null; }); } },
       { t: 'Sürüş: ' + (assist ? 'rahat' : 'gerçekçi'), toggle: true, a: function () { assist = !assist; } },
       { t: 'Gaz: ' + (autoGas ? 'otomatik' : 'elle'), toggle: true, a: function () { autoGas = !autoGas; } }
     ];
@@ -3365,6 +3429,7 @@ function menuItems() {
     { t: 'Ana menü', a: function () { stopNet(); toMenu(); } }
   ];
   if (state === 'padjoin') return [
+    { t: 'Adın: ' + (realName(profileOf(0)) || 'yazılmadı (dokun ve yaz)'), a: function () { openNameEditor('rename'); } },
     { t: 'Kod: ' + (NET.joinCode ? NET.joinCode : '____') + '   (dokun ve yaz)', a: openCodeEditor },
     { t: 'Bağlan', a: padConnect },
     { t: 'Geri', a: function () { stopNet(); backToMenu(1); } }
@@ -3727,7 +3792,7 @@ applySavedSettings();
 applyQuality();
 requestAnimationFrame(frame);
 setTimeout(runLoad, 30);
-window.__game = { tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
+window.__game = { playerName: function (p) { return playerName(p); }, endRaceNow: function () { endRace(); }, tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
 })();
 
 </script>
