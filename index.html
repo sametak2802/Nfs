@@ -668,19 +668,19 @@ function makeCityEnv() {
 var CAR_MODELS = {
   kaiser: { name: 'Kaiser S', type: 'Spor sedan', L: 4.72, W: 1.86, wb: 2.85, fo: 0.9, r: 0.345, clr: 0.15, nose: 0.68, hood: 0.95, belt: 1.0,
     cowl: 3.0, roofF: 2.3, roofR: 1.05, roofH: 1.43, deckX: 0.62, deck: 1.01, tail: 0.98, gw: 0.8,
-    power: 245, mass: 1560, grip: 1.02, drag: 0.34, drive: 'rwd', lightBar: true, exhaust: 2 },
+    power: 245, mass: 1450, grip: 1.05, drag: 0.34, drive: 'rwd', lightBar: true, exhaust: 2 },
   ronin: { name: 'Ronin R4', type: 'Ralli sedanı', L: 4.5, W: 1.82, wb: 2.64, fo: 0.92, r: 0.335, clr: 0.18, nose: 0.72, hood: 0.99, belt: 1.02,
     cowl: 2.88, roofF: 2.2, roofR: 0.96, roofH: 1.47, deckX: 0.6, deck: 1.03, tail: 1.0, gw: 0.8,
-    power: 215, mass: 1420, grip: 1.1, drag: 0.37, drive: 'awd', scoop: true, exhaust: 1 },
+    power: 235, mass: 1400, grip: 1.07, drag: 0.35, drive: 'awd', scoop: true, exhaust: 1 },
   kaze: { name: 'Kaze GT', type: 'Uzun burunlu coupe', L: 4.52, W: 1.84, wb: 2.55, fo: 1.0, r: 0.345, clr: 0.13, nose: 0.6, hood: 0.86, belt: 0.93,
     cowl: 2.55, roofF: 1.95, roofR: 0.98, roofH: 1.28, deckX: 0.28, deck: 0.96, tail: 0.94, gw: 0.76,
-    power: 260, mass: 1450, grip: 1.06, drag: 0.31, drive: 'rwd', popup: false, exhaust: 2 },
+    power: 250, mass: 1430, grip: 1.05, drag: 0.33, drive: 'rwd', popup: false, exhaust: 2 },
   vento: { name: 'Vento RS', type: 'Hot hatch', L: 4.25, W: 1.8, wb: 2.62, fo: 0.88, r: 0.335, clr: 0.15, nose: 0.72, hood: 0.97, belt: 1.0,
     cowl: 2.95, roofF: 2.35, roofR: 0.5, roofH: 1.46, deckX: 0.16, deck: 1.02, tail: 1.0, gw: 0.8,
-    power: 205, mass: 1290, grip: 1.08, drag: 0.35, drive: 'fwd', exhaust: 2 },
+    power: 228, mass: 1360, grip: 1.06, drag: 0.34, drive: 'fwd', exhaust: 2 },
   argo: { name: 'Argo V8', type: 'Kaslı GT', L: 4.85, W: 1.94, wb: 2.78, fo: 0.95, r: 0.355, clr: 0.14, nose: 0.74, hood: 0.98, belt: 1.0,
     cowl: 2.62, roofF: 2.0, roofR: 1.12, roofH: 1.34, deckX: 0.62, deck: 0.99, tail: 0.97, gw: 0.76,
-    power: 300, mass: 1720, grip: 0.98, drag: 0.36, drive: 'rwd', stripes: true, exhaust: 2 }
+    power: 262, mass: 1510, grip: 1.04, drag: 0.35, drive: 'rwd', stripes: true, exhaust: 2 }
 };
 var MODEL_KEYS = ['kaiser', 'ronin', 'kaze', 'vento', 'argo'];
 var PAINTS = [
@@ -1190,7 +1190,7 @@ function makeVehicle(ch, idx) {
     x: 0, y: 0, z: 0, psi: 0, u: 0, v: 0, w: 0,
     steer: 0, delta: 0, throttle: 0, brake: 0, hand: 0,
     m: m, a: a, b: b, Iz: m * a * b * 1.15, h: 0.52,
-    mu: 1.08 * s.grip, Cf: 16.5 * m * G * b / s.wb, Cr: 18.5 * m * G * a / s.wb,
+    mu: 1.08 * s.grip, Cf: 15 * m * G * b / s.wb, Cr: 21 * m * G * a / s.wb,
     power: s.power * 1000, drag: s.drag, idx: 0, lat: 0, lap: 1, maxLap: 1, lapT: 0, lapTimes: [], best: null,
     prevProg: 0, finished: false, finishTime: null, rank: 0, dist: 0,
     rpm: 900, gear: 1, slip: 0, ax: 0, ay: 0, roll: 0, pitch: 0, bump: 0, hitCool: 0, shake: 0,
@@ -1219,75 +1219,74 @@ function fullSearch(car) {
 
 function stepVehicle(car, dt, inp) {
   var s = car.spec, u = car.u, v = car.v, w = car.w;
-  var speed = Math.hypot(u, v);
-  // direksiyon: hıza göre azalan açı, yumuşak dönüş
-  var steerRate = assist ? 2.6 : 3.4, backRate = assist ? 4.2 : 5.0;
+  var speed = Math.hypot(u, v), au = Math.abs(u), L = car.a + car.b;
+  // --- direksiyon: yumuşak dönüş, hıza ve lastik tutuşuna göre sınırlı açı ---
   var target = inp.steer;
-  var rate = (Math.abs(target) > Math.abs(car.steer) && target * car.steer >= 0) ? steerRate : backRate;
-  if (inp.analog) rate = 8;
+  var growing = Math.abs(target) > Math.abs(car.steer) && target * car.steer >= 0;
+  var rate = inp.analog ? 7 : (growing ? (assist ? 2.4 : 3.0) : 5.0);
   car.steer += clamp(target - car.steer, -rate * dt, rate * dt);
-  var maxDelta = 0.6 / (1 + (u * u) / (assist ? 380 : 520));
-  car.delta = -car.steer * maxDelta;       // + sol
+  var gripSteer = L * car.mu * G * (assist ? 0.92 : 1.12) / Math.max(u * u, 30) + 0.025;
+  var maxDelta = Math.min(0.55, gripSteer);
+  car.delta = -car.steer * maxDelta;          // + sol
   var delta = car.delta;
 
   car.throttle = inp.gas; car.brake = inp.brake; car.hand = inp.hand;
-  var L = car.a + car.b;
-  var Nf = car.m * G * car.b / L - car.m * car.ax * car.h / L;
-  var Nr = car.m * G * car.a / L + car.m * car.ax * car.h / L;
-  Nf = Math.max(Nf, car.m * G * 0.2); Nr = Math.max(Nr, car.m * G * 0.2);
-  var muF = car.mu * (car.bump > 0 ? 0.85 : 1), muR = car.mu * (car.hand > 0.5 ? 0.42 : 1) * (car.bump > 0 ? 0.85 : 1);
+  var hand = car.hand > 0.5;
+  // ağırlık aktarımı (yumuşatılmış)
+  var wt = (assist ? 0.3 : 0.55) * car.m * clamp(car.ax, -8, 8) * car.h / L;
+  var Nf = Math.max(car.m * G * car.b / L - wt, car.m * G * 0.25);
+  var Nr = Math.max(car.m * G * car.a / L + wt, car.m * G * 0.25);
+  var muF = car.mu * (car.bump > 0 ? 0.9 : 1);
+  var muR = car.mu * (hand ? 0.45 : 1.06) * (car.bump > 0 ? 0.9 : 1);
 
-  // boyuna kuvvetler
-  var fwdSpeed = Math.max(Math.abs(u), 1.5);
-  var engine = car.throttle * Math.min(car.m * 6.2, car.power / fwdSpeed);
-  if (u < -0.5 && car.throttle > 0) engine = car.throttle * car.m * 6;   // geri giderken gaz = fren gibi
+  // --- boyuna kuvvetler ---
+  var engine = car.throttle * Math.min(car.m * 5.0, car.power / Math.max(au, 2));
+  if (u < -0.5 && car.throttle > 0) engine = car.throttle * car.m * 7;      // geri giderken gaz = fren
   var reverse = 0;
-  if (car.brake > 0 && u < 0.8 && car.throttle === 0) { reverse = -car.brake * car.m * 3.2; if (u < -8) reverse = 0; }
-  var brakeF = (u > 0.8 ? car.brake : 0) * car.m * 10.5;
-  var handF = car.hand > 0.5 ? car.m * 4 : 0;
-  var Fdrag = car.drag * u * Math.abs(u) + 38 * u;
+  if (car.brake > 0 && u < 0.8 && car.throttle === 0) { reverse = -car.brake * car.m * 3.0; if (u < -7) reverse = 0; }
+  var brakeF = (u > 0.8 ? car.brake : 0) * car.m * G * Math.min(0.95, car.mu * 0.9);
+  var handF = hand ? car.m * 3.5 : 0;
+  var Fdrag = car.drag * u * Math.abs(u) + 30 * u;
   var Fx = engine + reverse - Math.sign(u) * (brakeF + handF) - Fdrag;
-  // tahrik tipine göre çekiş sınırı
-  var driveN = s.drive === 'fwd' ? Nf : (s.drive === 'rwd' ? Nr : Nf + Nr);
-  var driveMu = s.drive === 'fwd' ? muF : muR;
-  Fx = clamp(Fx, -(muF * Nf + muR * Nr), driveMu * driveN + Fdrag);
 
   var Fyf = 0, Fyr = 0;
-  if (speed > 0.8) {
-    var au = Math.max(Math.abs(u), 2.0);
-    var alphaF = Math.atan2(v + car.a * w, au) - delta * Math.sign(u || 1);
-    var alphaR = Math.atan2(v - car.b * w, au);
+  if (speed > 0.5) {
+    var uu = Math.max(au, 3.0);
+    var alphaF = Math.atan2(v + car.a * w, uu) - delta * (u < 0 ? -1 : 1);
+    var alphaR = Math.atan2(v - car.b * w, uu);
     var capF = muF * Nf, capR = muR * Nr;
-    if (s.drive !== 'fwd') { var used = Math.min(Math.abs(engine) * 0.85, capR * 0.95); capR = Math.sqrt(Math.max(capR * capR - used * used, capR * capR * 0.12)); }
+    // gaz basılıyken arka tutuş azalması: rahatta yok, gerçekçide sınırlı
+    if (!assist && s.drive === 'rwd') capR *= 1 - 0.12 * Math.min(1, engine / (car.mu * Nr));
     Fyf = capF * Math.tanh(-car.Cf * alphaF / capF);
     Fyr = capR * Math.tanh(-car.Cr * alphaR / capR);
-    car.slip = Math.max(Math.abs(alphaR) - 0.08, Math.abs(alphaF) - 0.1, 0) * Math.min(1, speed / 12);
+    car.slip = Math.max(Math.abs(alphaR) - 0.07, Math.abs(alphaF) - 0.09, 0) * Math.min(1, speed / 10);
   } else car.slip = 0;
 
   var du = (Fx - Fyf * Math.sin(delta)) / car.m + v * w;
   var dv = (Fyr + Fyf * Math.cos(delta)) / car.m - u * w;
   var dw = (car.a * Fyf * Math.cos(delta) - car.b * Fyr) / car.Iz;
-  car.ax = du - v * w; car.ay = dv + u * w;
+  car.ax = lerp(car.ax, (Fx - Fyf * Math.sin(delta)) / car.m, 0.1); car.ay = dv + u * w;
 
   u += du * dt; v += dv * dt; w += dw * dt;
-  // düşük hızda kinematik model (titremeyi önler)
-  if (speed < 3) {
-    var blend = 1 - speed / 3;
-    var wk = u * Math.tan(delta) / L;
-    w = lerp(w, wk, blend); v = lerp(v, 0, blend * 0.5);
+
+  // --- düşük hızda kinematik model: yerinde dönüp savrulma olmaz ---
+  if (au < 6) {
+    var bl = 1 - au / 6;
+    w = lerp(w, u * Math.tan(delta) / L, bl * 0.6);
+    v = lerp(v, 0, bl * 0.35);
   }
-  // denge yardımı (rahat modda savrulmayı tutar)
-  if (assist) {
-    var wMax = car.mu * G / Math.max(Math.abs(u), 4) * 1.05;
-    if (Math.abs(w) > wMax && car.hand < 0.5) w = lerp(w, Math.sign(w) * wMax, 0.18);
-    v *= 0.996;
-  }
+  // --- denge kontrolü: dönüş hızı ve yana kayma sınırı ---
+  var wMax = car.mu * G / Math.max(au, 3) * (hand ? 1.6 : (assist ? 1.0 : 1.2)) + 0.15;
+  if (Math.abs(w) > wMax) w = lerp(w, Math.sign(w) * wMax, assist ? 0.35 : 0.2);
+  var betaMax = hand ? 0.55 : (assist ? 0.1 : 0.2);
+  var vMax = Math.max(au, 3) * Math.tan(betaMax);
+  if (Math.abs(v) > vMax) v = lerp(v, Math.sign(v) * vMax, 1 - Math.exp(-dt * (assist ? 9 : 4)));
+  if (!hand && Math.abs(target) < 0.05) { v *= Math.exp(-dt * (assist ? 1.5 : 0.9)); }
   if (Math.abs(u) < 0.05 && car.throttle === 0 && car.brake === 0) u = 0;
 
   car.u = u; car.v = v; car.w = w;
   car.psi += w * dt;
   var sp = Math.sin(car.psi), cp = Math.cos(car.psi);
-  // ileri = (sin, cos), sol = (cos, -sin)
   car.x += (u * sp + v * cp) * dt;
   car.z += (u * cp - v * sp) * dt;
 }
@@ -1312,8 +1311,12 @@ function collideWalls(car) {
       vx -= 1.25 * vn * nx; vz -= 1.25 * vn * nz;
       var fr = clamp(1 - impact * 0.035, 0.75, 0.985);
       vx *= fr; vz *= fr;
-      car.u = vx * sp + vz * cp; car.v = vx * cp - vz * sp;
-      car.w *= 0.6;
+      // arcade: duvara sürtünce araba yol yönüne hizalanır, dönüp kalmaz
+      var dh = wrapAngle(p.heading - car.psi);
+      if (Math.abs(dh) < 1.3) car.psi += dh * Math.min(0.5, 0.12 + impact * 0.03);
+      sp = Math.sin(car.psi); cp = Math.cos(car.psi);
+      car.u = vx * sp + vz * cp; car.v = (vx * cp - vz * sp) * 0.5;
+      car.w *= 0.3;
       if (impact > 2 && car.hitCool <= 0) { thump(impact * 0.04); car.hitCool = 0.3; car.shake = Math.min(1, impact * 0.08); }
     }
   }
@@ -1349,7 +1352,8 @@ function collidePair(A, B, bKinematic) {
         A.u = avx * sa + avz * ca2; A.v = avx * ca2 - avz * sa;
         // temas noktası tork
         var cx = ca[i][0] - A.x, cz = ca[i][1] - A.z;
-        A.w += (cz * nx - cx * nz) * jimp * 0.35;
+        A.w += (cz * nx - cx * nz) * jimp * 0.12;
+        A.v *= 0.7;
         if (bKinematic) B.speed = Math.max(0, B.speed - (nx * Math.sin(B.psi) + nz * Math.cos(B.psi)) * jimp * 0.6);
         else {
           var bx = bvx - jimp * nx, bz = bvz - jimp * nz;
@@ -1459,7 +1463,7 @@ function startRace() {
   spawnPlayers();
   raceT = 0; waitT = 0; resultsT = 0;
   state = 'countdown'; cdT = 3; lastBeep = 4; menu.focus = 0;
-  clearControls(); calibrateTilt();
+  clearControls(); calibrateTilt(); guardBack();
 }
 function toMenu() {
   players.forEach(function (p) { disposeCar(p.mesh); });
@@ -1715,7 +1719,7 @@ var garageView = null;
 // ======================================================================
 // ARAYÜZ (2D katman): gösterge, harita, menüler, garaj, dokunmatik
 // ======================================================================
-var W = 0, H = 0, camToast = [null, null];
+var W = 0, H = 0, camToast = [null, null], garageOk = null;
 function unitFor(w, h) { return Math.min(h, w * 0.85) / 100; }
 
 function drawPanel(p, u, x, y) {
@@ -1905,9 +1909,14 @@ function drawItems(items, ix, iy, colW, availH, u) {
   if (menu.focus < 0) menu.focus = 0;
   var bh = Math.min(u * 9.2, availH / Math.min(items.length, 6.5) / 1.2), gap = bh * 0.2;
   var visible = Math.max(1, Math.floor((availH + gap) / (bh + gap)));
-  if (menu.focus < menu.scroll) menu.scroll = menu.focus;
-  if (menu.focus > menu.scroll + visible - 1) menu.scroll = menu.focus - visible + 1;
   menu.scroll = clamp(menu.scroll, 0, Math.max(0, items.length - visible));
+  if (menu.userScroll) menu.focus = clamp(menu.focus, menu.scroll, Math.min(items.length, menu.scroll + visible) - 1);
+  else {
+    if (menu.focus < menu.scroll) menu.scroll = menu.focus;
+    if (menu.focus > menu.scroll + visible - 1) menu.scroll = menu.focus - visible + 1;
+  }
+  menu.pitch = bh + gap; menu.visible = visible; menu.count = items.length;
+  menu.listRect = { x: ix, y: iy, w: colW + u * 4, h: Math.min(items.length, visible) * (bh + gap) };
   var fs = Math.min(u * 4.5, bh * 0.46);
   for (var i = menu.scroll; i < Math.min(items.length, menu.scroll + visible); i++) {
     var it = items[i], f = i === menu.focus, y = iy + (i - menu.scroll) * (bh + gap);
@@ -1927,6 +1936,7 @@ function drawItems(items, ix, iy, colW, availH, u) {
     var trackH = visible * (bh + gap) - gap, thumbH = trackH * visible / items.length;
     ctx.fillStyle = 'rgba(255,255,255,.15)'; rr(ctx, ix + colW + u * 1.2, iy, u * 0.9, trackH, u * 0.45); ctx.fill();
     ctx.fillStyle = COL.focus; rr(ctx, ix + colW + u * 1.2, iy + (trackH - thumbH) * menu.scroll / (items.length - visible), u * 0.9, thumbH, u * 0.45); ctx.fill();
+    if (menu.scroll + visible < items.length) txtShadow('▼ aşağıda ' + (items.length - menu.scroll - visible) + ' seçenek daha', ix + colW / 2, iy + trackH + bh * 0.55, fs * 0.8, COL.focus, 'center', 'middle');
   }
 }
 function drawMenuScreen(title, lines, items, hint, dim) {
@@ -1953,14 +1963,14 @@ function drawGarageUI(hint) {
   // araba adı ve özellikleri
   txtShadow(spec.name, gv.x + u * 5, gv.y + u * 12, u * 9, COL.paper, 'left', 'alphabetic');
   txtShadow(spec.type, gv.x + u * 5, gv.y + u * 18, u * 4, COL.blueSoft, 'left', 'alphabetic');
-  var bars = [['Güç', (spec.power - 190) / 120], ['Yol tutuş', (spec.grip - 0.94) / 0.18], ['Hafiflik', (1800 - spec.mass) / 550]];
+  var bars = [['Güç', 0.55 + (spec.power - 245) / 60], ['Yol tutuş', 0.55 + (spec.grip - 1.05) / 0.08], ['Hafiflik', 0.55 + (1435 - spec.mass) / 300]];
   var bx = gv.x + u * 5, by = gv.y + gv.h - u * 22, bw = Math.min(gv.w * 0.6, u * 70);
   for (var i = 0; i < bars.length; i++) {
     var yy = by + i * u * 6;
     txtShadow(bars[i][0], bx, yy + u * 2.2, u * 3.4, COL.paper, 'left', 'middle');
     var barX = bx + u * 19, barW = bw - u * 19;
     ctx.fillStyle = 'rgba(255,255,255,.14)'; rr(ctx, barX, yy + u * 1, barW, u * 2.4, u * 1.2); ctx.fill();
-    ctx.fillStyle = COL.focus; rr(ctx, barX, yy + u * 1, barW * clamp(0.12 + bars[i][1] * 0.88, 0.08, 1), u * 2.4, u * 1.2); ctx.fill();
+    ctx.fillStyle = COL.focus; rr(ctx, barX, yy + u * 1, barW * clamp(bars[i][1], 0.1, 1), u * 2.4, u * 1.2); ctx.fill();
   }
   var ix, iy, colW, availH;
   if (wide) { ix = W * 0.58; colW = W * 0.39; iy = u * 5; }
@@ -1969,9 +1979,13 @@ function drawGarageUI(hint) {
   ctx.fillStyle = COL.blue; rr(ctx, ix, iy, colW, titleH, u * 2); ctx.fill();
   ctx.strokeStyle = COL.paper; ctx.lineWidth = u * 0.5; rr(ctx, ix + u, iy + u, colW - u * 2, titleH - u * 2, u * 1.3); ctx.stroke();
   txt('Garaj', ix + u * 4.5, iy + u * 8.6, u * 7, COL.paper);
+  var okW = Math.min(colW * 0.36, u * 26), okH = titleH - u * 3.4;
+  garageOk = { x: ix + colW - okW - u * 1.7, y: iy + u * 1.7, w: okW, h: okH };
+  ctx.fillStyle = COL.focus; rr(ctx, garageOk.x, garageOk.y, okW, okH, u * 1.3); ctx.fill();
+  txt('Tamam ✓', garageOk.x + okW / 2, garageOk.y + okH / 2 + u * 0.3, Math.min(u * 4.6, okH * 0.5), COL.ink, 'center', 'middle');
   if (numPlayers > 1) txt((gIdx + 1) + '. oyuncunun arabası', ix + u * 4.5, iy + u * 14, u * 3.6, COL.blueSoft);
   iy += titleH + u * 2.5;
-  availH = H - iy - u * 8;
+  availH = H - iy - u * 11;
   drawItems(items, ix, iy, colW, availH, u);
   if (hint) txtShadow(hint, W / 2, H - u * 2.6, u * 3.2, COL.paper, 'center', 'alphabetic');
 }
@@ -2024,9 +2038,9 @@ function drawHUD2D(dt) {
 var DIFF_NAMES = ['kolay', 'normal', 'zor'];
 var STEER_NAMES = ['butonlar', 'telefonu eğ', 'eğ (ters)'];
 function cyc(v, n, d) { return (v + (d || 1) + n) % n; }
-function openGarage() { initAudio(); state = 'garage'; gIdx = 0; menu.focus = numPlayers > 1 ? 1 : 0; menu.scroll = 0; }
-function openSettings() { state = 'settings'; menu.focus = 0; menu.scroll = 0; }
-function backToMenu(f) { disposeGarage(); state = 'menu'; menu.focus = f || 0; menu.scroll = 0; }
+function openGarage() { initAudio(); state = 'garage'; gIdx = 0; menu.focus = numPlayers > 1 ? 1 : 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
+function openSettings() { state = 'settings'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
+function backToMenu(f) { disposeGarage(); state = 'menu'; menu.focus = f || 0; menu.scroll = 0; menu.userScroll = false; }
 function pauseGame() { if (state !== 'race' && state !== 'countdown') return; pausedFrom = state; state = 'pause'; menu.focus = 0; clearControls(); }
 function resumeGame() { state = pausedFrom; menu.focus = 0; clearControls(); }
 function clearControls() { [kb1, kb2, touchIn[0], touchIn[1]].forEach(function (k) { k.left = k.right = k.gas = k.brake = k.hand = false; }); }
@@ -2093,7 +2107,7 @@ function menuItems() {
   if (state === 'results' && resultsT > 1.2) return [{ t: 'Tekrar yarış', a: startRace }, { t: 'Ana menü', a: toMenu }];
   return [];
 }
-function menuMove(d) { var it = menuItems(); if (!it.length) return; menu.focus = (menu.focus + d + it.length) % it.length; beep(520, 0.04, 'triangle', 0.05); }
+function menuMove(d) { var it = menuItems(); if (!it.length) return; menu.userScroll = false; menu.focus = (menu.focus + d + it.length) % it.length; beep(520, 0.04, 'triangle', 0.05); }
 function menuSelect() { var it = menuItems(); if (!it.length) return; initAudio(); it[clamp(menu.focus, 0, it.length - 1)].a(1); }
 function menuToggle(d) { var it = menuItems(); if (!it.length) return; var x = it[clamp(menu.focus, 0, it.length - 1)]; if (x.toggle) { x.a(d); beep(620, 0.04, 'triangle', 0.05); } }
 function goBack() {
@@ -2238,8 +2252,9 @@ glCanvas.addEventListener('touchstart', function (e) {
       if (inRect(p, tb.pause)) { pauseGame(); return; }
       for (var ci = 0; ci < tb.cams.length; ci++) if (inRect(p, tb.cams[ci])) cycleCam(tb.cams[ci].p);
     } else if (isMenuState()) {
+      if (state === 'garage' && garageOk && inRect(p, garageOk)) { tapOk = true; tapStartItem = -1; continue; }
       var h = hitItem(p); tapStartItem = h ? h.i : -1;
-      if (h) menu.focus = h.i;
+      if (menu.listRect && inRect(p, menu.listRect)) listDrag = { y: p.y, scroll: menu.scroll, moved: false };
       if (state === 'garage' && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
     }
   }
@@ -2248,25 +2263,51 @@ glCanvas.addEventListener('touchstart', function (e) {
 glCanvas.addEventListener('touchmove', function (e) {
   e.preventDefault();
   if (garageDrag && e.touches.length) { var p = toCanvas(e.touches[0]); garageSpin = garageDrag.spin + (p.x - garageDrag.x) / SW * 6; }
+  if (listDrag && e.touches.length && menu.pitch) {
+    var q = toCanvas(e.touches[0]), dy = q.y - listDrag.y;
+    if (Math.abs(dy) > menu.pitch * 0.3) listDrag.moved = true;
+    if (listDrag.moved) { menu.userScroll = true; menu.scroll = clamp(Math.round(listDrag.scroll - dy / menu.pitch), 0, Math.max(0, menu.count - menu.visible)); }
+  }
   readTouches(e.touches);
 }, { passive: false });
 glCanvas.addEventListener('touchend', function (e) {
   e.preventDefault();
-  if (isMenuState() && tapStartItem >= 0) {
-    var p = toCanvas(e.changedTouches[0]), h = hitItem(p), items = menuItems();
-    if (h && h.i === tapStartItem && items[h.i]) { initAudio(); items[h.i].a(p.x < h.x + h.w * 0.35 ? -1 : 1); }
-    tapStartItem = -1;
+  var pe = toCanvas(e.changedTouches[0]);
+  if (tapOk) { tapOk = false; if (state === 'garage' && garageOk && inRect(pe, garageOk)) { beep(620, 0.05, 'triangle', 0.05); backToMenu(1); } }
+  if (isMenuState() && tapStartItem >= 0 && !(listDrag && listDrag.moved)) {
+    var h = hitItem(pe), items = menuItems();
+    if (h && h.i === tapStartItem && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(pe.x < h.x + h.w * 0.35 ? -1 : 1); }
   }
+  tapStartItem = -1;
+  if (!e.touches.length) listDrag = null;
   if (!e.touches.length) garageDrag = null;
   readTouches(e.touches);
 }, { passive: false });
-glCanvas.addEventListener('touchcancel', function (e) { readTouches(e.touches); tapStartItem = -1; garageDrag = null; }, { passive: false });
+glCanvas.addEventListener('touchcancel', function (e) { readTouches(e.touches); tapStartItem = -1; garageDrag = null; listDrag = null; tapOk = false; }, { passive: false });
+var listDrag = null, tapOk = false;
+glCanvas.addEventListener('wheel', function (e) {
+  if (!isMenuState() || !menu.visible) return;
+  e.preventDefault(); menu.userScroll = true;
+  menu.scroll = clamp(menu.scroll + (e.deltaY > 0 ? 1 : -1), 0, Math.max(0, menu.count - menu.visible));
+}, { passive: false });
+// telefonun geri hareketi: sayfadan çıkmak yerine bir önceki ekrana dön
+var backGuard = false;
+function guardBack() { if (backGuard || !isTouch) return; try { history.pushState({ gy: 1 }, ''); backGuard = true; } catch (e) {} }
+window.addEventListener('popstate', function () {
+  if (!backGuard) return;
+  backGuard = false;
+  if (plateOpen) { closePlateEditor(false); guardBack(); return; }
+  if (state === 'menu') { try { history.back(); } catch (e) {} return; }
+  if (state === 'race' || state === 'countdown') pauseGame(); else goBack();
+  guardBack();
+});
 glCanvas.addEventListener('mousedown', function (e) {
   if (isTouch || state === 'loading') return;
   var p = toCanvas(e);
   if (isMenuState()) {
     var h = hitItem(p), items = menuItems();
-    if (h && items[h.i]) { initAudio(); menu.focus = h.i; items[h.i].a(p.x < h.x + h.w * 0.35 ? -1 : 1); }
+    if (state === 'garage' && garageOk && inRect(p, garageOk)) { backToMenu(1); return; }
+    if (h && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(p.x < h.x + h.w * 0.35 ? -1 : 1); }
     else if (state === 'garage' && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
   }
 });
@@ -2350,7 +2391,7 @@ function runLoad() {
 applyQuality();
 requestAnimationFrame(frame);
 setTimeout(runLoad, 30);
-window.__game = { scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
+window.__game = { autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
 })();
 
 </script>
