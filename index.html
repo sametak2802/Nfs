@@ -139,6 +139,13 @@ var ENGINE_SOUND = {
   yildiz: { pulses: 2, harm: [1, 0.9, 0.55, 0.6, 0.35, 0.3, 0.22, 0.18, 0.14, 0.1, 0.08, 0.06], sub: 0.1, lope: 0.12, idle: 780, red: 6000, turbo: 0, grit: 2.8, body: 190, bright: 0.8 },
   nami: { pulses: 2, harm: [1, 0.6, 0.55, 0.45, 0.35, 0.34, 0.22, 0.22, 0.16, 0.14, 0.1, 0.1], sub: 0.05, lope: 0.03, idle: 950, red: 8700, turbo: 0, grit: 2.0, body: 290, bright: 1.4 },
   arashi: { pulses: 2, harm: [1, 0.85, 0.5, 0.58, 0.32, 0.34, 0.2, 0.24, 0.14, 0.12, 0.08, 0.08], sub: 0.14, lope: 0.08, idle: 950, red: 7400, turbo: 1, grit: 3.0, body: 215, bright: 1.15 },
+  tosun: { pulses: 2, harm: [1, 0.85, 0.6, 0.55, 0.38, 0.3, 0.2, 0.2, 0.12, 0.1, 0.08, 0.06], sub: 0.14, lope: 0.1, idle: 800, red: 6300, turbo: 0, grit: 3.0, body: 175, bright: 0.85 },
+  pars: { pulses: 2, harm: [1, 0.7, 0.5, 0.5, 0.3, 0.32, 0.18, 0.2, 0.12, 0.1, 0.07, 0.06], sub: 0.08, lope: 0.05, idle: 900, red: 7300, turbo: 1, grit: 2.3, body: 250, bright: 1.15 },
+  mako: { pulses: 3, harm: [1, 0.5, 0.72, 0.3, 0.46, 0.26, 0.2, 0.22, 0.12, 0.1, 0.07, 0.06], sub: 0.16, lope: 0.03, idle: 900, red: 8200, turbo: 0, grit: 1.7, body: 185, bright: 1.2 },
+  bora: { pulses: 3, harm: [1, 0.6, 0.62, 0.34, 0.44, 0.24, 0.2, 0.24, 0.12, 0.12, 0.07, 0.08], sub: 0.2, lope: 0.04, idle: 850, red: 7400, turbo: 1, grit: 2.0, body: 160, bright: 1.05 },
+  titan: { pulses: 4, harm: [1, 0.9, 0.52, 0.66, 0.32, 0.4, 0.2, 0.28, 0.12, 0.16, 0.06, 0.08], sub: 0.7, lope: 0.28, idle: 680, red: 6300, turbo: 0, grit: 3.5, body: 105, bright: 0.75 },
+  volkan: { pulses: 5, harm: [1, 0.6, 0.7, 0.45, 0.5, 0.35, 0.28, 0.25, 0.18, 0.15, 0.1, 0.1], sub: 0.2, lope: 0.06, idle: 1000, red: 8700, turbo: 0, grit: 2.2, body: 220, bright: 1.35 },
+  efsane: { pulses: 6, harm: [1, 0.55, 0.75, 0.4, 0.55, 0.3, 0.3, 0.26, 0.2, 0.16, 0.12, 0.1], sub: 0.18, lope: 0.03, idle: 1000, red: 9000, turbo: 1, grit: 1.9, body: 240, bright: 1.4 },
   argo: { pulses: 4, harm: [1, 0.85, 0.5, 0.62, 0.3, 0.38, 0.18, 0.26, 0.12, 0.15, 0.06, 0.08], sub: 0.6, lope: 0.24, idle: 700, red: 6600, turbo: 0, grit: 3.2, body: 115, bright: 0.8 }
 };
 function shaperCurve(k) {
@@ -1279,9 +1286,30 @@ var CAR_MODELS = {
     power: 205, mass: 1150, grip: 1.05, drag: 0.262, drive: 'fwd', exhaust: 1 },
   arashi: { name: 'Arashi R', type: 'Ralli sedanı', L: 4.5, W: 1.86, wb: 2.63, fo: 0.9, r: 0.35, clr: 0.15, nose: 0.7, hood: 0.95, belt: 0.98,
     cowl: 2.9, roofF: 2.25, roofR: 1.02, roofH: 1.43, deckX: 0.58, deck: 1.0, tail: 0.98, gw: 0.8, bodyN: 6.5,
-    power: 241, mass: 1420, grip: 1.05, drag: 0.333, drive: 'awd', scoop: true, exhaust: 1, wideFlare: true }
+    power: 241, mass: 1420, grip: 1.05, drag: 0.333, drive: 'awd', scoop: true, exhaust: 1, wideFlare: true },
+  tosun: { name: 'Tosun 2.0', type: 'Klasik coupe', L: 4.3, W: 1.72, wb: 2.42, fo: 0.86, r: 0.32, clr: 0.15, nose: 0.76, hood: 0.89, belt: 0.92,
+    cowl: 2.8, roofF: 2.2, roofR: 1.2, roofH: 1.33, deckX: 0.72, deck: 0.93, tail: 0.91, gw: 0.84, bodyN: 8, glassN: 6,
+    power: 197, mass: 1120, grip: 1.05, drag: 0.255, drive: 'rwd', classic: true, exhaust: 2 },
+  pars: { name: 'Pars GTi', type: 'Hot hatch', L: 4.2, W: 1.8, wb: 2.6, fo: 0.84, r: 0.34, clr: 0.13, nose: 0.7, hood: 0.92, belt: 0.97,
+    cowl: 2.95, roofF: 2.4, roofR: 0.45, roofH: 1.43, deckX: 0.12, deck: 1.0, tail: 0.98, gw: 0.8, bodyN: 6,
+    power: 225, mass: 1300, grip: 1.05, drag: 0.305, drive: 'fwd', exhaust: 2 },
+  mako: { name: 'Mako GT', type: 'Alçak spor araba', L: 4.45, W: 1.92, wb: 2.55, fo: 0.95, r: 0.35, clr: 0.1, nose: 0.6, hood: 0.84, belt: 0.88,
+    cowl: 2.45, roofF: 1.85, roofR: 1.1, roofH: 1.18, deckX: 0.4, deck: 0.92, tail: 0.9, gw: 0.72, bodyN: 4.4, hump: true,
+    power: 235, mass: 1380, grip: 1.05, drag: 0.324, drive: 'rwd', exhaust: 2 },
+  bora: { name: 'Bora RS', type: 'Süper sedan', L: 4.85, W: 1.96, wb: 2.9, fo: 0.9, r: 0.375, clr: 0.11, nose: 0.66, hood: 0.92, belt: 0.95,
+    cowl: 3.0, roofF: 2.3, roofR: 1.12, roofH: 1.38, deckX: 0.55, deck: 0.97, tail: 0.95, gw: 0.78, bodyN: 5.5, wideFlare: true,
+    power: 262, mass: 1540, grip: 1.05, drag: 0.36, drive: 'awd', exhaust: 2 },
+  titan: { name: 'Titan V8', type: 'Büyük kaslı araba', L: 4.9, W: 2.0, wb: 2.9, fo: 0.85, r: 0.38, clr: 0.13, nose: 0.86, hood: 1.0, belt: 0.99,
+    cowl: 2.75, roofF: 2.15, roofR: 1.15, roofH: 1.33, deckX: 0.6, deck: 0.99, tail: 0.97, gw: 0.74, bodyN: 7, stripes: true, wideFlare: true,
+    power: 272, mass: 1600, grip: 1.05, drag: 0.375, drive: 'rwd', exhaust: 2 },
+  volkan: { name: 'Volkan V10', type: 'Süper araba', L: 4.6, W: 2.02, wb: 2.65, fo: 1.05, r: 0.35, clr: 0.1, nose: 0.58, hood: 0.84, belt: 0.86,
+    cowl: 2.3, roofF: 1.78, roofR: 1.2, roofH: 1.14, deckX: 0.3, deck: 0.93, tail: 0.91, gw: 0.7, bodyN: 4.2, hump: true,
+    power: 245, mass: 1440, grip: 1.05, drag: 0.338, drive: 'awd', exhaust: 2 },
+  efsane: { name: 'Efsane X', type: 'Hiper araba', L: 4.75, W: 2.05, wb: 2.75, fo: 1.1, r: 0.36, clr: 0.09, nose: 0.56, hood: 0.84, belt: 0.85,
+    cowl: 2.25, roofF: 1.72, roofR: 1.25, roofH: 1.12, deckX: 0.25, deck: 0.95, tail: 0.95, gw: 0.68, bodyN: 4, hump: true, wideFlare: true,
+    power: 255, mass: 1500, grip: 1.05, drag: 0.352, drive: 'awd', exhaust: 2 }
 };
-var MODEL_KEYS = ['kaiser', 'ronin', 'kaze', 'vento', 'argo', 'yildiz', 'nami', 'arashi'];
+var MODEL_KEYS = ['yildiz', 'tosun', 'vento', 'pars', 'nami', 'kaiser', 'arashi', 'ronin', 'kaze', 'argo', 'mako', 'bora', 'titan', 'volkan', 'efsane'];
 var PAINTS = [
   { n: 'Beyaz', h: '#e9e8e3' }, { n: 'Siyah', h: '#131417' }, { n: 'Gümüş', h: '#a8adb3' }, { n: 'Füme', h: '#474b52' },
   { n: 'Kırmızı', h: '#b81d1d' }, { n: 'Turuncu', h: '#e0621f' }, { n: 'Sarı', h: '#e8b41c' }, { n: 'Yeşil', h: '#1f7a45' },
@@ -1289,7 +1317,9 @@ var PAINTS = [
   { n: 'Mor', h: '#5b2d91' }, { n: 'Pembe', h: '#e0488f' }, { n: 'Bordo', h: '#5e1520' }
 ];
 var FINISHES = ['parlak', 'metalik', 'mat'];
-var RIM_TYPES = ['5 kollu', 'çok kollu', 'çanak', 'Y kollu', 'turbin'];
+var RIM_TYPES = ['5 kollu', 'çok kollu', 'çanak', 'Y kollu', 'turbin', 'ağ örgü', '3 kollu', 'çift kollu', 'yıldız', 'çelik'];
+var STICKERS = ['yok', 'yarış şeridi', 'yan şerit', 'alev', 'yarış numarası', 'damalı', 'şimşek'];
+var STICKER_COLORS = [{ n: 'beyaz', h: '#f4f4f0' }, { n: 'siyah', h: '#141416' }, { n: 'sarı', h: '#f5c518' }, { n: 'kırmızı', h: '#d42a22' }, { n: 'mavi', h: '#2a6ae0' }, { n: 'turuncu', h: '#f07820' }];
 var RIM_COLORS = [{ n: 'gümüş', h: '#c9ccd1', m: 1 }, { n: 'siyah', h: '#1a1b1e', m: 0.4 }, { n: 'altın', h: '#c9a44a', m: 1 }, { n: 'bronz', h: '#8a5a33', m: 0.9 }, { n: 'beyaz', h: '#eeeeea', m: 0.2 }, { n: 'kırmızı', h: '#b3201c', m: 0.4 }];
 var SPOILERS = ['yok', 'dudak', 'ördek kuyruk', 'GT kanat'];
 var KITS = ['yok', 'marşpiyel', 'tam kit'];
@@ -1299,8 +1329,8 @@ var NEONS_UNDER = [{ n: 'yok' }, { n: 'mavi', h: '#2f7bff' }, { n: 'pembe', h: '
 
 function defaultChoice(i) {
   return i === 0
-    ? { model: 'kaiser', paint: 10, finish: 1, rim: 0, rimColor: 0, spoiler: 1, kit: 1, flaps: 0, tint: 2, neon: 1, plate: '54 NS 06' }
-    : { model: 'kaze', paint: 5, finish: 0, rim: 3, rimColor: 1, spoiler: 2, kit: 2, flaps: 0, tint: 1, neon: 0, plate: '54 NG 07' };
+    ? { model: 'kaiser', paint: 10, finish: 1, rim: 0, rimColor: 0, spoiler: 1, kit: 1, flaps: 0, tint: 2, neon: 1, sticker: 0, stickerColor: 0, plate: '54 NS 06' }
+    : { model: 'kaze', paint: 5, finish: 0, rim: 3, rimColor: 1, spoiler: 2, kit: 2, flaps: 0, tint: 1, neon: 0, sticker: 0, stickerColor: 0, plate: '54 NG 07' };
 }
 var choices = [defaultChoice(0), defaultChoice(1)];
 
@@ -1444,6 +1474,19 @@ function buildWheel(s, rimType, rimMat, mats) {
       var c = i / 6 * Math.PI * 2, hole = new THREE.CylinderGeometry(rr * 0.13, rr * 0.13, 0.035, 10); hole.rotateX(Math.PI / 2);
       var hm = new THREE.Mesh(hole, mats.dark); hm.position.set(Math.cos(c) * rr * 0.58, Math.sin(c) * rr * 0.58, zf + 0.006); spin.add(hm);
     }
+  } else if (rimType === 5) {
+    for (i = 0; i < 10; i++) { var mA = i / 10 * Math.PI * 2; [-0.35, 0.35].forEach(function (tw2) { var sq = box(rr * 0.9, 0.018, 0.025, rimMat, Math.cos(mA + tw2 * 0.4) * rr * 0.5, Math.sin(mA + tw2 * 0.4) * rr * 0.5, zf); sq.rotation.z = mA + tw2; spin.add(sq); }); }
+  } else if (rimType === 6) {
+    for (i = 0; i < 3; i++) { var tA = i / 3 * Math.PI * 2; sp = box(rr * 0.96, 0.14, 0.045, rimMat, Math.cos(tA) * rr * 0.47, Math.sin(tA) * rr * 0.47, zf); sp.rotation.z = tA; spin.add(sp); }
+  } else if (rimType === 7) {
+    for (i = 0; i < 10; i++) { var cA = i / 10 * Math.PI * 2; sp = box(rr * 0.95, 0.034, 0.035, rimMat, Math.cos(cA) * rr * 0.47, Math.sin(cA) * rr * 0.47, zf + (i % 2 ? 0.012 : 0)); sp.rotation.z = cA; spin.add(sp); }
+  } else if (rimType === 8) {
+    for (i = 0; i < 6; i++) { var yA = i / 6 * Math.PI * 2; sp = box(rr * 0.95, 0.11, 0.04, rimMat, Math.cos(yA) * rr * 0.47, Math.sin(yA) * rr * 0.47, zf); sp.rotation.z = yA; sp.scale.set(1, 1, 1); spin.add(sp);
+      var tip = box(0.05, 0.05, 0.04, mats.dark, Math.cos(yA + 0.52) * rr * 0.75, Math.sin(yA + 0.52) * rr * 0.75, zf + 0.004); spin.add(tip); }
+  } else if (rimType === 9) {
+    var steel = new THREE.CylinderGeometry(rr * 0.97, rr * 0.97, 0.03, 22); steel.rotateX(Math.PI / 2);
+    var stm = new THREE.Mesh(steel, rimMat); stm.position.z = zf - 0.01; spin.add(stm);
+    for (i = 0; i < 8; i++) { var sA = i / 8 * Math.PI * 2, sh = new THREE.CylinderGeometry(rr * 0.09, rr * 0.09, 0.035, 8); sh.rotateX(Math.PI / 2); var shm = new THREE.Mesh(sh, mats.dark); shm.position.set(Math.cos(sA) * rr * 0.62, Math.sin(sA) * rr * 0.62, zf - 0.004); spin.add(shm); }
   } else {
     n = 12;
     for (i = 0; i < n; i++) {
@@ -1678,7 +1721,7 @@ function buildCar(ch) {
     // çamurluk kasları
     [L - s.fo, L - s.fo - s.wb].forEach(function (xa) {
       var fl = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.09, s.wideFlare ? 0.06 : 0.045, 6, 20, Math.PI), paint);
-      var fsy = Math.min(1, (bodyTop(s, prof, xa) - 0.035 - s.r) / (s.r + 0.09));
+      var fsy = s.hump ? 1 : Math.min(1, (bodyTop(s, prof, xa) - 0.035 - s.r) / (s.r + 0.09));
       fl.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.05)); fl.scale.set(1, fsy, s.wideFlare ? 2.2 : 1.5); if (!s.classic) body.add(fl);
       var lip = new THREE.Mesh(new THREE.TorusGeometry(s.r + 0.055, 0.018, 5, 20, Math.PI), M.trim);
       lip.position.set(xa, s.r, sd * (bodyHalfW(s, xa) - 0.02)); lip.scale.y = fsy; body.add(lip);
@@ -1744,7 +1787,8 @@ function buildCar(ch) {
     var glassCover = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.54), new THREE.MeshPhysicalMaterial({ color: 0xffffff, transparent: true, opacity: 0.18, roughness: 0.02, metalness: 0.1, envMapIntensity: 2, depthWrite: false }));
     glassCover.position.set(L - 0.02, bodyTop(s, prof, L) - 0.045, sd * (bodyHalfW(s, L) - 0.3)); glassCover.userData.keep = true; body.add(glassCover);
   });
-  if (s.stripes) {
+  addStickers(body, s, prof, ch, L, W, M);
+  if (s.stripes && !ch.sticker) {
     for (var sx = s.cowl + 0.15; sx < L - 0.12; sx += 0.1) {
       var sy = bodyTop(s, prof, sx + 0.05) + 0.004, ang = Math.atan2(bodyTop(s, prof, sx + 0.1) - bodyTop(s, prof, sx), 0.1);
       body.add(box(0.105, 0.008, 0.15, M.stripe, sx + 0.05, sy, -0.14, ang)); body.add(box(0.105, 0.008, 0.15, M.stripe, sx + 0.05, sy, 0.14, ang));
@@ -1810,6 +1854,65 @@ function buildCar(ch) {
 
   car.userData = { beam: beam, spec: s, wheels: wheels, body: body, inner: inner, tilt: tilt, tail: tail, tailGlows: tailGlows, glowMat: glowMat, paint: paint, glass: glass, rimMat: rimMat, plateMat: plateMat };
   return car;
+}
+function stickerTex(kind, col, plate) {
+  var c = mkCanvas(512, 128), g = c.getContext('2d'), dark = 'rgba(0,0,0,.55)';
+  g.clearRect(0, 0, 512, 128); g.lineJoin = 'round';
+  if (kind === 3) {                               // alev
+    for (var k = 0; k < 7; k++) {
+      var y0 = 18 + k * 14, len = 220 + ((k * 37) % 5) * 45;
+      g.beginPath(); g.moveTo(500, y0 - 6);
+      g.bezierCurveTo(400, y0 - 22, 380 - len * 0.3, y0 + 18, 500 - len, y0 + 6 + (k % 2 ? -10 : 10));
+      g.bezierCurveTo(380 - len * 0.2, y0 + 26, 420, y0 + 20, 500, y0 + 16); g.closePath();
+      g.fillStyle = col; g.fill(); g.strokeStyle = dark; g.lineWidth = 3; g.stroke();
+    }
+  } else if (kind === 4) {                        // yarış numarası
+    g.fillStyle = col; g.beginPath(); g.arc(256, 64, 56, 0, 6.2832); g.fill();
+    g.strokeStyle = dark; g.lineWidth = 5; g.stroke();
+    var num = (String(plate || '').match(/\d+/) || ['54'])[0].slice(0, 2);
+    setFont(g, 70); g.fillStyle = lum(col) > 0.55 ? '#141416' : '#f4f4f0'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(num, 256, 68);
+  } else if (kind === 5) {                        // damalı
+    for (var x = 0; x < 16; x++) for (var y = 0; y < 3; y++) { g.fillStyle = (x + y) % 2 ? col : 'rgba(20,20,22,.9)'; g.fillRect(x * 32, 32 + y * 20, 32, 20); }
+  } else if (kind === 6) {                        // şimşek
+    g.beginPath(); g.moveTo(20, 70); g.lineTo(200, 40); g.lineTo(190, 62); g.lineTo(360, 30); g.lineTo(350, 56); g.lineTo(500, 50); g.lineTo(330, 90); g.lineTo(340, 68); g.lineTo(170, 100); g.lineTo(180, 78); g.closePath();
+    g.fillStyle = col; g.fill(); g.strokeStyle = dark; g.lineWidth = 4; g.stroke();
+  }
+  return canvasTex(c, false);
+}
+function addStickers(body, s, prof, ch, L, W, M) {
+  var kind = ch.sticker | 0; if (!kind) return;
+  var col = (STICKER_COLORS[ch.stickerColor | 0] || STICKER_COLORS[0]).h;
+  var mat = new THREE.MeshStandardMaterial({ color: new THREE.Color(col).convertSRGBToLinear(), roughness: 0.35, metalness: 0.1 });
+  var sd, sx;
+  if (kind === 1) {                               // kaput-tavan-bagaj şeridi
+    for (sx = 0.12; sx < L - 0.12; sx += 0.1) {
+      var inCab = sx > s.deckX && sx < s.cowl, sy, ang;
+      if (inCab && (sx < s.roofR + 0.15 || sx > s.roofF - 0.15)) continue;
+      if (inCab) { sy = s.roofH + 0.03; ang = 0; }
+      else { sy = bodyTop(s, prof, sx + 0.05) + 0.005; ang = Math.atan2(bodyTop(s, prof, sx + 0.1) - bodyTop(s, prof, sx), 0.1); }
+      body.add(box(0.105, 0.008, 0.16, mat, sx + 0.05, sy, -0.15, ang)); body.add(box(0.105, 0.008, 0.16, mat, sx + 0.05, sy, 0.15, ang));
+    }
+    return;
+  }
+  if (kind === 2) {                               // yan şerit
+    for (sd = -1; sd <= 1; sd += 2) for (sx = 0.35; sx < L - 0.4; sx += 0.12) {
+      var yy = bodyTop(s, prof, sx) - 0.14; if (yy < 2 * s.r + 0.12) continue;
+      body.add(box(0.125, 0.06, 0.012, mat, sx + 0.06, yy, sd * (sideZ(s, prof, sx + 0.06, yy) + 0.004)));
+    }
+    return;
+  }
+  var tex = stickerTex(kind, col, ch.plate);
+  var dm = new THREE.MeshStandardMaterial({ map: tex, transparent: true, roughness: 0.35, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2 });
+  var w = Math.min(1.9, s.wb - 2 * s.r - 0.1), h = w / 4;
+  var cx = kind === 3 ? L - s.fo - s.r - 0.1 - w / 2 : L - s.fo - s.wb / 2;
+  if (kind === 3) { w = Math.min(1.5, s.wb - 2 * s.r - 0.1); h = w / 4; cx = L - s.fo - s.r - 0.12 - w / 2; }
+  var cy = s.clr + (bodyTop(s, prof, cx) - s.clr) * 0.52;
+  for (sd = -1; sd <= 1; sd += 2) {
+    var pl = new THREE.Mesh(new THREE.PlaneGeometry(w, h), dm);
+    pl.position.set(cx, cy, sd * (sideZ(s, prof, cx, cy) + 0.02));
+    if (sd < 0) pl.rotation.y = Math.PI;
+    pl.userData.keep = true; pl.renderOrder = 2; body.add(pl);
+  }
 }
 function disposeCar(car) {
   if (!car) return;
@@ -1896,7 +1999,7 @@ function stepVehicle(car, dt, inp) {
   var st = car.steer, sAbs = Math.abs(st);
 
   // --- hedef dönüş hızı ---
-  var ayMax = (assist ? 32 : 27) * (1 + (car.tireLvl || 0) * 0.05) * (car.bump > 0 ? 0.85 : 1);   // oyun tutuşu: çok keskin dönüş
+  var ayMax = (assist ? 32 : 27) * (car.gripMul || 1) * (car.bump > 0 ? 0.85 : 1);   // oyun tutuşu: çok keskin dönüş
   var wKin = Math.max(au, 0) * Math.tan(0.8) / L;            // düşük hızda direksiyon açısı sınırı
   var wGrip = Math.max(ayMax / Math.max(au, 1), assist ? 1.02 : 0.9);   // yüksek hızda bile dönebilsin
   var wCap = Math.min(wKin, wGrip * (hand ? 1.3 : 1) * (gameMode === 'drift' ? 1.15 : 1), 2.45);
@@ -1907,7 +2010,7 @@ function stepVehicle(car, dt, inp) {
   car.delta = clamp(-st * Math.min(0.5, wCap * L / Math.max(au, 1) + 0.03), -0.5, 0.5);
 
   // --- boyuna ---
-  var engine = car.throttle * Math.min(car.m * 7.5, car.power * 1.6 / Math.max(au, 2)) / car.m;
+  var engine = car.throttle * Math.min(car.m * (car.accelCap || 7.5), car.power * 1.6 / Math.max(au, 2)) / car.m;
   if (u < -0.5 && car.throttle > 0) engine = car.throttle * 9;
   var acc = engine + nitroAccel(car, inp, dt, u);
   if (car.brake > 0) {
@@ -2061,9 +2164,9 @@ function updateRival(r, dt, moving) {
 var SAVE_KEY = 'geceYarisi.kariyer.v1';
 var CAR_PRICE = { vento: 0, yildiz: 6000, nami: 16000, kaiser: 20000, ronin: 26000, arashi: 30000, kaze: 32000, argo: 40000 };
 var UPGRADES = [
-  { key: 'engine', name: 'Motor', prices: [6000, 12000, 20000] },
-  { key: 'nitro', name: 'Nitro', prices: [5000, 10000, 16000] },
-  { key: 'tire', name: 'Lastik', prices: [4000, 8000, 14000] }
+  { key: 'engine', name: 'Motor', prices: [1500, 3000, 6000, 11000, 18000, 28000] },
+  { key: 'nitro', name: 'Nitro', prices: [1200, 2500, 5000, 8500, 13000, 20000] },
+  { key: 'tire', name: 'Lastik', prices: [1200, 2400, 4500, 8000, 12000, 18000] }
 ];
 var MODES = [{ id: 'race', name: 'Yarış' }, { id: 'drift', name: 'Drift' }, { id: 'police', name: 'Polisten kaç' }];
 var modeIdx = 0, gameMode = 'race', raceId = 0;
@@ -2071,8 +2174,8 @@ var SAVE = { profiles: [], active: [0, -1] };
 
 function fmtTL(n) { n = Math.round(n); var s = String(Math.abs(n)), out = ''; while (s.length > 3) { out = '.' + s.slice(-3) + out; s = s.slice(0, -3); } return (n < 0 ? '-' : '') + s + out + ' TL'; }
 function newProfile(name) {
-  var ch = defaultChoice(0); ch.model = 'vento';
-  return { name: name, money: 3000, owned: ['vento'], car: 'vento', up: {}, choice: ch, stats: { races: 0, wins: 0, bestDrift: 0, escapes: 0 } };
+  var ch = defaultChoice(0); ch.model = 'yildiz'; ch.paint = 0; ch.finish = 0; ch.rim = 0; ch.rimColor = 0; ch.spoiler = 0; ch.kit = 0; ch.tint = 0; ch.neon = 0;
+  return { name: name, money: 4500, owned: ['yildiz'], car: 'yildiz', up: {}, items: {}, missions: {}, choice: ch, stats: { races: 0, wins: 0, bestDrift: 0, escapes: 0 } };
 }
 function loadSave() {
   try { var j = window.localStorage && localStorage.getItem(SAVE_KEY); if (j) SAVE = JSON.parse(j); } catch (e) {}
@@ -2081,9 +2184,11 @@ function loadSave() {
     if (!p.owned || !p.owned.length) p.owned = ['vento'];
     if (!p.up) p.up = {}; if (!p.stats) p.stats = { races: 0, wins: 0, bestDrift: 0, escapes: 0 };
     if (!p.choice) p.choice = defaultChoice(0);
-    var fcS = SAVE.settings && SAVE.settings.fc !== undefined ? !!SAVE.settings.fc : true;
+    var fcS = SAVE.v === 2 && SAVE.settings && SAVE.settings.fc !== undefined ? !!SAVE.settings.fc : false;
     if (!fcS && p.owned.indexOf(p.choice.model) < 0) p.choice.model = p.owned[0];
   });
+  if (SAVE.v !== 2) { SAVE.v = 2; if (!SAVE.settings) SAVE.settings = {}; SAVE.settings.fc = false; freeCars = false; }
+  SAVE.profiles.forEach(function (p) { if (!p.items) p.items = {}; if (!p.missions) p.missions = {}; if (p.owned.indexOf('yildiz') < 0) p.owned.unshift('yildiz'); });
   if (!SAVE.active) SAVE.active = [0, -1];
   if (!(SAVE.active[0] >= 0 && SAVE.active[0] < SAVE.profiles.length)) SAVE.active[0] = 0;
   if (SAVE.active[1] >= SAVE.profiles.length || SAVE.active[1] === SAVE.active[0]) SAVE.active[1] = -1;
@@ -2094,7 +2199,7 @@ function profileOf(i) { var k = SAVE.active[i]; return (k >= 0 && SAVE.profiles[
 function linkChoices() {
   for (var i = 0; i < 2; i++) { var pr = profileOf(i); if (pr) choices[i] = pr.choice; }
 }
-var freeCars = true;   // true: bütün arabalar serbest, false: kariyer (satın alarak aç)
+var freeCars = false;  // true: her şey serbest, false: kariyer (kazan, satın al)
 function owns(i, model) { if (freeCars) return true; var pr = profileOf(i); return !pr || pr.owned.indexOf(model) >= 0; }
 function upgradesFor(i, model) {
   var pr = profileOf(i); if (!pr) return { engine: 0, nitro: 0, tire: 0 };
@@ -2110,14 +2215,14 @@ function buyCar(i) {
 function buyUpgrade(i, key) {
   var pr = profileOf(i), m = choices[i].model; if (!pr || !owns(i, m)) return;
   var def = UPGRADES.filter(function (u) { return u.key === key; })[0], cur = upgradesFor(i, m)[key];
-  if (cur >= 3) { flash('Zaten en üst seviyede'); return; }
+  if (cur >= MAX_UP) { flash('Zaten en üst seviyede'); return; }
   var price = def.prices[cur];
   if (pr.money < price) { flash('Paran yetmiyor: ' + fmtTL(price - pr.money) + ' eksik'); beep(220, 0.2); return; }
-  pr.money -= price; if (!pr.up[m]) pr.up[m] = {}; pr.up[m][key] = cur + 1; persist();
+  pr.money -= price; if (!pr.up[m]) pr.up[m] = {}; pr.up[m][key] = cur + 1; persist(); checkMissions(pr);
   flash(def.name + ' seviye ' + (cur + 1) + ' takıldı'); beep(990, 0.12);
 }
 function leaveGarageFix() {
-  for (var i = 0; i < 2; i++) { var pr = profileOf(i); if (pr) { if (!owns(i, choices[i].model)) choices[i].model = pr.car; else pr.car = choices[i].model; } }
+  for (var i = 0; i < 2; i++) { var pr = profileOf(i); if (pr) { if (!owns(i, choices[i].model)) choices[i].model = pr.car; else pr.car = choices[i].model; enforceOwned(i, choices[i]); } }
   persist();
 }
 var flashMsg = null;
@@ -2126,17 +2231,18 @@ function flash(t) { flashMsg = { t: t, time: 2.2 }; }
 // ---------------- Nitro ve geliştirme etkileri ----------------
 function applyUpgradesToVehicle(car, ch) {
   var up = ch.up || { engine: 0, nitro: 0, tire: 0 };
-  car.engineLvl = clamp(up.engine | 0, 0, 3); car.nitroLvl = clamp(up.nitro | 0, 0, 3); car.tireLvl = clamp(up.tire | 0, 0, 3);
-  car.power *= 1 + car.engineLvl * 0.08;
+  car.engineLvl = clamp(up.engine | 0, 0, MAX_UP); car.nitroLvl = clamp(up.nitro | 0, 0, MAX_UP); car.tireLvl = clamp(up.tire | 0, 0, MAX_UP);
+  var em = effMul(ch.model, up);
+  car.power *= em.pw; car.accelCap = 7.5 * Math.sqrt(em.pw); car.gripMul = em.gr;
   car.nitro = 1; car.boosting = false;
 }
 function nitroAccel(car, inp, dt, u) {
   car.boosting = false;
   var lvl = (car.nitroLvl || 0) + 1;                       // 1 = standart nitro, her arabada var
   if (inp.nitro && car.nitro > 0.01 && u > 2 && state === 'race') {
-    car.nitro = Math.max(0, car.nitro - dt / (1.8 + lvl * 0.7));
+    car.nitro = Math.max(0, car.nitro - dt / (1.8 + lvl * 0.45));
     car.boosting = true;
-    return 3.0 + lvl * 1.2 + (car.drag * 1.85 * u * u) / car.m * 0.6;
+    return 3.0 + lvl * 0.75 + (car.drag * 1.85 * u * u) / car.m * 0.6;
   }
   car.nitro = Math.min(1, car.nitro + dt * (0.03 + (car.slip > 0.25 ? 0.09 : 0)));
   return 0;
@@ -2249,6 +2355,20 @@ var RACE_PRIZE = [6000, 3500, 2200, 1400, 900, 600], DIFF_MULT = [1, 1.4, 1.9];
 function computeRewards() {
   raceId++;
   hostCountRace();
+  if (careerEvent && players.length === 1) {
+    var pc = players[0], pr0 = profileOf(0), cr = careerResults(pc);
+    pc.earned = Math.round(cr.earn / 10) * 10; pc.careerOut = cr;
+    if (pr0) {
+      pr0.money += pc.earned; pr0.stats.races++;
+      pr0.stats.maxKmh = Math.max(pr0.stats.maxKmh || 0, Math.round((pc.topSpeed || 0) * 3.6));
+      if (cr.won && (careerEvent.type === 'race' || careerEvent.type === 'hard' || careerEvent.type === 'duel')) pr0.stats.wins++;
+      if (gameMode === 'drift') pr0.stats.bestDrift = Math.max(pr0.stats.bestDrift, Math.round((pc.drift || 0) + (pc.combo || 0)));
+      if (gameMode === 'police' && pc.escaped) pr0.stats.escapes++;
+      checkMissions(pr0);
+    }
+    persist();
+    return;
+  }
   var scores = players.map(function (p) { return Math.round((p.drift || 0) + (p.combo || 0)); });
   players.forEach(function (p, i) {
     var earn = 0;
@@ -2264,15 +2384,22 @@ function computeRewards() {
       var pr = profileOf(i);
       if (pr) {
         pr.money += p.earned; pr.stats.races++;
+        pr.stats.maxKmh = Math.max(pr.stats.maxKmh || 0, Math.round((p.topSpeed || 0) * 3.6));
         if (gameMode === 'race' && p.rank === 1 && players.length === 1) pr.stats.wins++;
         if (gameMode === 'drift') pr.stats.bestDrift = Math.max(pr.stats.bestDrift, scores[i]);
         if (gameMode === 'police' && p.escaped) pr.stats.escapes++;
       }
     }
   });
+  players.forEach(function (p, i) { checkMissions(profileOf(i)); });
   persist();
 }
 function buildResults() {
+  if (careerEvent && players[0] && players[0].careerOut) {
+    var co = players[0].careerOut, ls = co.lines.slice();
+    ls.push('Kazanç  +' + fmtTL(players[0].earned || 0));
+    return { title: co.title, lines: ls };
+  }
   if (netCars.length || NET.standings) return remoteResults();
   var lines = [], title = '';
   function earnTxt(p, i) { var pr = NET.role === 'host' ? true : profileOf(i); return pr ? '  +' + fmtTL(p.earned || 0) : '  (misafir)'; }
@@ -2406,6 +2533,218 @@ function autosaveSettings() {
 }
 
 // ======================================================================
+// KARİYER İLERLEMESİ: 15 araba sınıfı, düellolar, etkinlikler, görevler, mağaza
+// ======================================================================
+var TIER_ORDER = ['yildiz', 'tosun', 'vento', 'pars', 'nami', 'kaiser', 'arashi', 'ronin', 'kaze', 'argo', 'mako', 'bora', 'titan', 'volkan', 'efsane'];
+var MAX_UP = 6;
+function carTier(model) { var i = TIER_ORDER.indexOf(model); return i < 0 ? 0 : i; }
+function tierPowerMul(model) { return 0.78 + carTier(model) * 0.035; }
+function tierGripMul(model) { return 0.92 + carTier(model) * 0.01; }
+function effMul(model, up) {
+  up = up || {};
+  return { pw: tierPowerMul(model) * (1 + (up.engine | 0) * 0.03), gr: tierGripMul(model) * (1 + (up.tire | 0) * 0.02) };
+}
+function perfIndex(model, up) { var e = effMul(model, up); return Math.round(e.pw * 70 + e.gr * 30 + ((up && up.nitro) | 0) * 0.6); }
+function carPace(model, up) { var e = effMul(model, up); return Math.pow(e.pw, 0.32) * 0.5 + Math.sqrt(e.gr) * 0.5; }
+var REF_PACE = carPace('kaiser', {});
+
+// ---------------- Mağaza: kozmetik fiyatları ----------------
+var SHOP = {
+  paint: function (i) { return i < 4 ? 0 : 900; },
+  finish: function (i) { return [0, 1800, 2800][i]; },
+  rim: function (i) { return [0, 2500, 3000, 2500, 4000, 3500, 3000, 4500, 5000, 1500][i]; },
+  rimColor: function (i) { return i < 2 ? 0 : 900; },
+  spoiler: function (i) { return [0, 1500, 3000, 6000][i]; },
+  kit: function (i) { return [0, 2500, 6000][i]; },
+  flaps: function (i) { return i ? 1200 : 0; },
+  tint: function (i) { return [0, 700, 1000, 1500, 1200, 1200, 1200][i]; },
+  neon: function (i) { return i ? 2500 : 0; },
+  sticker: function (i) { return [0, 2500, 1800, 4000, 2000, 3000, 3500][i]; },
+  stickerColor: function (i) { return i < 1 ? 0 : 600; }
+};
+var SHOP_NAMES = { paint: 'boya', finish: 'boya türü', rim: 'jant', rimColor: 'jant rengi', spoiler: 'spoyler', kit: 'kaporta kiti', flaps: 'karlık', tint: 'cam filmi', neon: 'neon', sticker: 'sticker', stickerColor: 'sticker rengi' };
+function itemPrice(key, idx) { var f = SHOP[key]; return f ? (f(idx | 0) || 0) : 0; }
+function ownsItem(i, key, idx) {
+  if (freeCars) return true;
+  var pr = profileOf(i); if (!pr) return true;
+  if (itemPrice(key, idx) === 0) return true;
+  return !!(pr.items && pr.items[key] && pr.items[key].indexOf(idx | 0) >= 0);
+}
+function buyItem(i, key) {
+  var pr = profileOf(i), idx = choices[i][key] | 0, price = itemPrice(key, idx);
+  if (!pr || ownsItem(i, key, idx)) return;
+  if (pr.money < price) { flash('Paran yetmiyor: ' + fmtTL(price - pr.money) + ' eksik'); beep(220, 0.2); return; }
+  pr.money -= price;
+  if (!pr.items) pr.items = {};
+  if (!pr.items[key]) pr.items[key] = [];
+  pr.items[key].push(idx);
+  pr.stats.buys = (pr.stats.buys || 0) + 1;
+  if (!pr.lastGood) pr.lastGood = {};
+  pr.lastGood[key] = idx;
+  persist(); flash('Satın alındı: ' + SHOP_NAMES[key]); beep(880, 0.1); setTimeout(function () { beep(1320, 0.14); }, 110);
+  checkMissions(pr);
+}
+function enforceOwned(i, ch) {
+  var pr = profileOf(i); if (!pr || freeCars) return ch;
+  if (!pr.lastGood) pr.lastGood = {};
+  Object.keys(SHOP).forEach(function (key) {
+    var v = ch[key] | 0;
+    if (ownsItem(i, key, v)) pr.lastGood[key] = v;
+    else ch[key] = (pr.lastGood[key] !== undefined && ownsItem(i, key, pr.lastGood[key])) ? pr.lastGood[key] : 0;
+  });
+  return ch;
+}
+
+// ---------------- Araba kilitleri: düelloyla kazanılır ----------------
+function maxOwnedTier(pr) { var t = 0; (pr.owned || []).forEach(function (m) { t = Math.max(t, carTier(m)); }); return t; }
+function nextDuelModel(pr) { return TIER_ORDER[Math.min(TIER_ORDER.length - 1, maxOwnedTier(pr) + 1)]; }
+function lockText(i, model) {
+  var pr = profileOf(i); if (!pr) return '';
+  var nx = nextDuelModel(pr);
+  return model === nx ? 'Kilitli: Kariyer → düelloda yenersen senin' : 'Kilitli: önce ' + CAR_MODELS[nx].name + ' düellosunu kazan';
+}
+
+// ---------------- Görevler ----------------
+var MISSIONS = [
+  { id: 'firstRace', name: 'İlk yarışını bitir', reward: 500, prog: function (p) { return [p.stats.races, 1]; } },
+  { id: 'win1', name: 'Bir yarış kazan', reward: 1500, prog: function (p) { return [p.stats.wins, 1]; } },
+  { id: 'duel1', name: 'İlk düellonu kazan', reward: 3000, prog: function (p) { return [p.stats.duelWins || 0, 1]; } },
+  { id: 'eng3', name: 'Bir arabanın motorunu 3. seviyeye çıkar', reward: 2500, prog: function (p) { return [maxUp(p, 'engine'), 3]; } },
+  { id: 'buy3', name: 'Mağazadan 3 parça al', reward: 2000, prog: function (p) { return [p.stats.buys || 0, 3]; } },
+  { id: 'win5', name: '5 yarış kazan', reward: 5000, prog: function (p) { return [p.stats.wins, 5]; } },
+  { id: 'drift8k', name: 'Bir drift yarışında 8.000 puan topla', reward: 3000, prog: function (p) { return [p.stats.bestDrift, 8000]; } },
+  { id: 'speed250', name: '250 km/sa hıza çık', reward: 3000, prog: function (p) { return [Math.round(p.stats.maxKmh || 0), 250]; } },
+  { id: 'hard1', name: 'Bir zor yarış kazan', reward: 6000, prog: function (p) { return [p.stats.hardWins || 0, 1]; } },
+  { id: 'cars5', name: '5 arabaya sahip ol', reward: 10000, prog: function (p) { return [(p.owned || []).length, 5]; } },
+  { id: 'escape3', name: 'Polisten 3 kez kaç', reward: 6000, prog: function (p) { return [p.stats.escapes, 3]; } },
+  { id: 'tracks3', name: 'Üç pistte de yarış kazan', reward: 7000, prog: function (p) { var t = p.stats.trackWins || {}; return [Object.keys(t).length, 3]; } },
+  { id: 'eng6', name: 'Bir arabanın motorunu 6. seviyeye çıkar', reward: 12000, prog: function (p) { return [maxUp(p, 'engine'), 6]; } },
+  { id: 'win20', name: '20 yarış kazan', reward: 20000, prog: function (p) { return [p.stats.wins, 20]; } },
+  { id: 'cars10', name: '10 arabaya sahip ol', reward: 25000, prog: function (p) { return [(p.owned || []).length, 10]; } },
+  { id: 'legend', name: 'Efsane X düellosunu kazan', reward: 50000, prog: function (p) { return [(p.owned || []).indexOf('efsane') >= 0 ? 1 : 0, 1]; } }
+];
+function maxUp(p, key) { var m = 0; Object.keys(p.up || {}).forEach(function (k) { m = Math.max(m, (p.up[k] || {})[key] | 0); }); return m; }
+function checkMissions(pr) {
+  if (!pr) return;
+  if (!pr.missions) pr.missions = {};
+  var got = 0;
+  MISSIONS.forEach(function (M) {
+    if (pr.missions[M.id]) return;
+    var pg = M.prog(pr);
+    if (pg[0] >= pg[1]) { pr.missions[M.id] = true; pr.money += M.reward; got++; flash('Görev tamam: ' + M.name + '  +' + fmtTL(M.reward)); }
+  });
+  if (got) { persist(); beep(784, 0.1); setTimeout(function () { beep(1047, 0.1); }, 110); setTimeout(function () { beep(1319, 0.18); }, 220); }
+}
+function missionsDone(pr) { var n = 0; MISSIONS.forEach(function (M) { if (pr && pr.missions && pr.missions[M.id]) n++; }); return n; }
+
+// ---------------- Etkinlikler ----------------
+var careerEvent = null;
+function aiLapEstimate(skill) {
+  var T = TRACK, t = 0;
+  for (var i = 0; i < T.N; i++) t += T.ds / Math.max(5, T.vmax[i] * skill);
+  return t;
+}
+function careerEvents(pr) {
+  var car = pr.car, tier = carTier(car), up = pr.up[car] || {}, list = [];
+  var nx = nextDuelModel(pr), nxT = carTier(nx);
+  if (maxOwnedTier(pr) < TIER_ORDER.length - 1) {
+    var dUp = { engine: clamp(Math.round(nxT / 2.6), 0, 6), tire: clamp(Math.round(nxT / 3.4), 0, 6) };
+    list.push({ type: 'duel', title: 'Düello: ' + CAR_MODELS[nx].name, info: 'güç puanı ' + perfIndex(nx, dUp) + ' (seninki ' + perfIndex(car, up) + '), kazanırsan araba senin',
+      reward: 3500 + nxT * 1100, laps: 3, track: nxT % 3, rivals: [{ model: nx, up: dUp }], skill: [0.94, 1.0, 1.06][difficulty] });
+  }
+  var mk = function (dt) { return TIER_ORDER[clamp(tier + dt, 0, TIER_ORDER.length - 1)]; };
+  var myUp = { engine: up.engine | 0, tire: up.tire | 0 };
+  list.push({ type: 'race', title: 'Sınıf yarışı', info: '5 rakip, senin sınıfında', reward: 2600 + tier * 600, laps: 3, track: (pr.stats.races | 0) % 3,
+    rivals: [mk(-1), mk(0), mk(0), mk(1), mk(1)].map(function (m, k) { return { model: m, up: { engine: clamp(myUp.engine - 1 + k, 0, 6), tire: clamp(myUp.tire - 1 + k, 0, 6) } }; }), skill: [0.94, 1.0, 1.05][difficulty] });
+  list.push({ type: 'hard', title: 'Zor yarış', info: '3 çok güçlü rakip', reward: 6500 + tier * 1400, laps: 3, track: ((pr.stats.races | 0) + 1) % 3,
+    rivals: [mk(1), mk(2), mk(3)].map(function (m) { return { model: m, up: { engine: clamp(myUp.engine + 2, 2, 6), tire: clamp(myUp.tire + 2, 2, 6) } }; }), skill: [1.02, 1.08, 1.14][difficulty] });
+  list.push({ type: 'drift', title: 'Drift etkinliği', info: 'hedef ' + (6000 + tier * 800).toLocaleString('tr-TR') + ' puan', target: 6000 + tier * 800, reward: 1500 + tier * 350, laps: 2, track: 2, rivals: [] });
+  list.push({ type: 'tt', title: 'Zamana karşı', info: 'hedef tur süresi aşağıda', reward: 2000 + tier * 400, laps: 3, track: (tier + 1) % 3, rivals: [], paceSkill: [0.95, 1.0, 1.04][difficulty] });
+  return list;
+}
+function modeIndexOf(id) { for (var i = 0; i < MODES.length; i++) if (MODES[i].id === id) return i; return 0; }
+function startCareerEvent(ev) {
+  var pr = profileOf(0); if (!pr) return;
+  careerEvent = ev; numPlayers = 1; NET.playerSlots = null;
+  modeIdx = modeIndexOf(ev.type === 'drift' ? 'drift' : (ev.type === 'tt' ? 'tt' : 'race'));
+  choices[0].model = pr.car;
+  var go = function () {
+    startRace();
+    if (ev.type === 'tt') ev.targetLap = Math.round(aiLapEstimate(clamp(PACE_EQ * ev.paceSkill, 0.5, 1.3)) * 10) / 10;
+  };
+  if (ev.track !== trackIdx) { trackIdx = ev.track; THEME = TRACKS[trackIdx]; rebuildWorld(go); } else go();
+}
+// beceri: 1.0 ≈ 53 sn tur. Rakibin arabası kadar hızlı olur, zorluk çarpanı biner.
+// PACE_EQ: bu beceri, referans araba (Kaiser, stok) ile aynı tur süresini verir.
+var PACE_EQ = 0.945;
+function playerPace() {
+  var ch = choices[0], pr = profileOf(0);
+  return carPace(ch.model, pr ? (pr.up[ch.model] || {}) : (ch.up || {}));
+}
+// Rakip becerisi oyuncunun arabasına oranlanır: base 1.0 => oyuncuyla aynı tempo
+// base 1.0 = oyuncunun arabasıyla aynı tempo. Rakibin arabası hızlıysa sürücüsü
+// o hızın tamamını kullanamaz (payı yumuşatıyoruz), yoksa üst sınıf hiç yenilemezdi.
+function rivalSkillFor(model, up, base) {
+  var ratio = carPace(model, up) / playerPace();
+  return clamp(base * PACE_EQ * Math.pow(ratio, 0.3), 0.5, 1.45);
+}
+// düello: rakip, oyuncunun orta seviye geliştirilmiş arabası kadar hızlı olur
+function duelSkill(playerModel, playerUp) {
+  var mid = { engine: 3, tire: 3 };
+  return clamp(PACE_EQ * carPace(playerModel, mid) / REF_PACE * [0.985, 1.04, 1.1][difficulty], 0.55, 1.5);
+}
+// hızlı yarış rakipleri: oyuncunun sınıfına yakın arabalar
+function quickRivals() {
+  var myModel = choices[0].model, tier = carTier(myModel), list = [];
+  var myUp = choices[0].up || upgradesFor(0, myModel);
+  var cnt = difficulty === 2 ? 3 : RIVALS;                       // zor: 3 araba, hepsi güçlü
+  var span = [[-3, -1], [-1, 0], [0, 1]][difficulty];
+  var upAdd = [-2, 0, 1][difficulty];
+  for (var i = 0; i < cnt; i++) {
+    var m = TIER_ORDER[clamp(tier + span[0] + Math.round((span[1] - span[0]) * i / Math.max(1, cnt - 1)), 0, TIER_ORDER.length - 1)];
+    list.push({ model: m, up: { engine: clamp((myUp.engine | 0) + upAdd, 0, 6), tire: clamp((myUp.tire | 0) + upAdd, 0, 6) } });
+  }
+  return { rivals: list, skill: [0.9, 1.0, 1.1][difficulty] };
+}
+function careerResults(p) {
+  var ev = careerEvent, pr = profileOf(0), out = { earn: 0, lines: [], title: '' };
+  if (!ev || !pr) return out;
+  var won = false;
+  if (ev.type === 'duel') {
+    won = p.finishTime !== null && p.rank === 1;
+    if (won) {
+      var m = ev.rivals[0].model;
+      if (pr.owned.indexOf(m) < 0) pr.owned.push(m);
+      pr.stats.duelWins = (pr.stats.duelWins || 0) + 1;
+      out.title = CAR_MODELS[m].name + ' artık senin!'; out.earn = ev.reward;
+      out.lines.push('Düelloyu kazandın. Garajdan yeni arabanı seçebilirsin.');
+    } else { out.title = 'Düelloyu kaybettin'; out.earn = 300; out.lines.push('Arabanı geliştirip tekrar dene: motor, lastik, nitro'); }
+  } else if (ev.type === 'race' || ev.type === 'hard') {
+    var share = [1, 0.7, 0.5, 0.36, 0.27, 0.2][clamp(p.rank - 1, 0, 5)];
+    won = p.rank === 1 && p.finishTime !== null;
+    out.earn = p.finishTime !== null ? ev.reward * share : 200;
+    out.title = won ? (ev.type === 'hard' ? 'Zor yarışı kazandın!' : 'Birinci oldun!') : p.rank + '. oldun';
+    if (won && ev.type === 'hard') pr.stats.hardWins = (pr.stats.hardWins || 0) + 1;
+    out.lines.push('Toplam ' + fmt(p.finishTime) + ', en iyi tur ' + fmt(p.best));
+  } else if (ev.type === 'drift') {
+    var sc = Math.round((p.drift || 0) + (p.combo || 0));
+    won = sc >= ev.target; out.earn = won ? ev.reward : Math.round(sc / 10);
+    out.title = won ? 'Drift hedefi tamam!' : 'Hedefe ulaşamadın';
+    out.lines.push(sc.toLocaleString('tr-TR') + ' puan, hedef ' + ev.target.toLocaleString('tr-TR'));
+  } else if (ev.type === 'tt') {
+    won = p.best !== null && p.best <= ev.targetLap; out.earn = won ? ev.reward : 250;
+    out.title = won ? 'Hedef süreyi geçtin!' : 'Hedef süreye yetişemedin';
+    out.lines.push('En iyi tur ' + fmt(p.best) + ', hedef ' + fmt(ev.targetLap));
+  }
+  if (won && (ev.type === 'race' || ev.type === 'hard' || ev.type === 'duel')) {
+    if (!pr.stats.trackWins) pr.stats.trackWins = {};
+    pr.stats.trackWins[THEME.id] = true;
+  }
+  out.won = won;
+  return out;
+}
+
+// ======================================================================
 // OYUN AKIŞI, KAMERA, ÇİZİM
 // ======================================================================
 var DEBUG = { bot: false, input: null };
@@ -2423,16 +2762,18 @@ function spawnRivals(forRace) {
     return;
   }
   var count = (forRace && (numPlayers > 1 || gameMode === 'drift' || gameMode === 'tt' || NET.inRemoteRace || (NET.role === 'host' && remoteOpen()))) ? 0 : RIVALS;
+  var plan = careerEvent ? { rivals: careerEvent.rivals, skill: careerEvent.skill } : quickRivals();
+  if (forRace && count > 0) count = plan.rivals.length;
   for (var i = 0; i < count; i++) {
     var ch = {
-      model: MODEL_KEYS[Math.floor(rnd() * MODEL_KEYS.length)], paint: Math.floor(rnd() * PAINTS.length), finish: Math.floor(rnd() * 3),
+      model: forRace ? plan.rivals[i].model : MODEL_KEYS[Math.floor(rnd() * MODEL_KEYS.length)], paint: Math.floor(rnd() * PAINTS.length), finish: Math.floor(rnd() * 3),
       rim: Math.floor(rnd() * RIM_TYPES.length), rimColor: Math.floor(rnd() * RIM_COLORS.length), spoiler: Math.floor(rnd() * 4), kit: Math.floor(rnd() * 3),
       flaps: rnd() < 0.2 ? 1 : 0, tint: Math.floor(rnd() * 4), neon: rnd() < 0.5 ? 1 + Math.floor(rnd() * 5) : 0,
       plate: (10 + Math.floor(rnd() * 70)) + ' ' + String.fromCharCode(65 + Math.floor(rnd() * 26)) + String.fromCharCode(65 + Math.floor(rnd() * 26)) + ' ' + (100 + Math.floor(rnd() * 899))
     };
-    var skill = lerp(skills[0], skills[1], i / Math.max(1, RIVALS - 1)) + (rnd() - 0.5) * 0.02;
+    var skill = forRace ? rivalSkillFor(ch.model, plan.rivals[i].up, plan.skill) * (1 - 0.02 * i / Math.max(1, count - 1)) : 0.9;
     var r = makeRival(ch, i, skill);
-    if (forRace) { var row = Math.floor((RIVALS - 1 - i) / 2); r.s = 6 + row * 12; r.off = (i % 2 ? 3.2 : -3.2); }
+    if (forRace) { var row = Math.floor((count - 1 - i) / 2); r.s = 6 + row * 12; r.off = (i % 2 ? 3.2 : -3.2); }
     else { r.s = i * TRACK.len / RIVALS; r.off = (i % 2 ? 2.5 : -2.5); r.speed = 20; }
     r.startS = r.s; r.targetOff = r.off;
     r.mesh = buildCar(ch); scene.add(r.mesh);
@@ -2530,7 +2871,7 @@ function inputFor(idx) {
 }
 
 function updateRace(dt) {
-  var moving = state === 'race' || state === 'results' || state === 'menu' || state === 'settings';
+  var moving = state === 'race' || state === 'results' || (isMenuState() && state !== 'garage');
   if (state === 'countdown') {
     cdT -= dt;
     var c = Math.ceil(cdT);
@@ -2582,12 +2923,12 @@ function updateRace(dt) {
       p.crossings++;
     } else if (p.prevProg < 60 && p.prog > L - 60) p.crossings--;
     p.prevProg = p.prog;
-    if (state === 'race' && !p.finished) p.lapT += dt;
+    if (state === 'race' && !p.finished) { p.lapT += dt; p.topSpeed = Math.max(p.topSpeed || 0, p.u); }
     if (p.msg) { p.msg.t -= dt; if (p.msg.t <= 0) p.msg = null; }
   });
   if (gameMode === 'drift' && state === 'race') players.forEach(function (p) { updateDrift(p, dt); });
   if (gameMode === 'police') updateChase(dt);
-  players.forEach(function (p) { ttSample(p, dt); });
+  players.forEach(function (p) { ttSample(p, dt); p.topSpeed = Math.max(p.topSpeed || 0, p.u); });
   ttGhostUpdate();
   if (state === 'race') {
     var done = players.filter(function (p) { return p.finished; }).length;
@@ -2671,7 +3012,7 @@ function renderView(cam, v) {
   renderer.render(scene, cam);
 }
 function layoutViews() {
-  if (players.length < 2 || state === 'menu' || state === 'settings' || state === 'lobby' || state === 'padjoin') return [{ x: 0, y: 0, w: SW, h: SH }];
+  if (players.length < 2 || isMenuState() || state === 'lobby' || state === 'padjoin') return [{ x: 0, y: 0, w: SW, h: SH }];
   var gap = Math.max(2, Math.round(SH * 0.005));
   if (isTouch || SW / SH >= 1.9) { var hw = Math.floor((SW - gap) / 2); return [{ x: 0, y: 0, w: hw, h: SH }, { x: SW - hw, y: 0, w: hw, h: SH }]; }
   var hh = Math.floor((SH - gap) / 2); return [{ x: 0, y: 0, w: SW, h: hh }, { x: 0, y: SH - hh, w: SW, h: hh }];
@@ -2682,7 +3023,7 @@ function render3D(dt) {
   if (isGarageLike()) { renderGarage(dt); return; }
   if (state === 'pad') { views = [{ x: 0, y: 0, w: SW, h: SH }]; return; }
   views = layoutViews();
-  if ((state === 'menu' || state === 'settings' || state === 'lobby' || state === 'padjoin') && rivals.length) {
+  if (isMenuState() && state !== 'garage' && rivals.length) {
     attractT += dt;
     var r = rivals[0], ang = attractT * 0.18;
     var ax = r.x + Math.sin(r.psi + Math.PI + Math.sin(ang) * 0.9) * 8.5, az = r.z + Math.cos(r.psi + Math.PI + Math.sin(ang) * 0.9) * 8.5;
@@ -3013,7 +3354,8 @@ function drawItems(items, ix, iy, colW, availH, u) {
     if (f) { ctx.strokeStyle = COL.ink; ctx.lineWidth = u * 0.45; ctx.stroke(); }
     var tx = ix + u * 4;
     if (it.arrows) { tri(ix + u * 3.4, y + bh / 2, ix + u * 5.1, y + bh / 2 - u * 1.4, ix + u * 5.1, y + bh / 2 + u * 1.4, COL.ink); tx = ix + u * 7.4; }
-    txt(it.t, tx, y + bh / 2 + u * 0.2, fs, COL.ink, 'left', 'middle');
+    txt(it.t, tx, y + bh / 2 + (it.sub ? -u * 1.3 : u * 0.2), fs, it.locked ? '#7a6a2a' : COL.ink, 'left', 'middle');
+    if (it.sub) txt(it.sub, tx, y + bh / 2 + u * 2.4, fs * 0.64, 'rgba(27,30,36,.72)', 'left', 'middle');
     var rx = ix + colW - u * 3.2;
     if (it.arrows) { tri(rx, y + bh / 2, rx - u * 1.7, y + bh / 2 - u * 1.4, rx - u * 1.7, y + bh / 2 + u * 1.4, COL.ink); rx -= u * 3.8; }
     else if (f) tri(ix + colW - u * 5.2, y + bh / 2 - u * 1.6, ix + colW - u * 2.8, y + bh / 2, ix + colW - u * 5.2, y + bh / 2 + u * 1.6, COL.ink);
@@ -3044,6 +3386,7 @@ function drawMenuScreen(title, lines, items, hint, dim) {
   if (hint) txtShadow(hint, W / 2, H - u * 3, u * 3.3, COL.paper, 'center', 'alphabetic');
 }
 function drawGarageUI(hint) {
+  var prof0 = profileOf(gIdx);
   W = SW; H = SH;
   var u = Math.min(H, W * 0.75) / 100, wide = W > H * 1.2;
   var ch = choices[gIdx], spec = CAR_MODELS[ch.model], items = menuItems();
@@ -3052,9 +3395,13 @@ function drawGarageUI(hint) {
   txtShadow(spec.name, gv.x + u * 5, gv.y + u * 12, u * 9, COL.paper, 'left', 'alphabetic');
   txtShadow(spec.type, gv.x + u * 5, gv.y + u * 18, u * 4, COL.blueSoft, 'left', 'alphabetic');
   var by = gv.y + gv.h - u * 17;
-  txtShadow('0-100 km/sa: 3,9 sn', gv.x + u * 5, by, u * 3.8, COL.paper, 'left', 'middle');
-  txtShadow('En yüksek hız: ~255 km/sa', gv.x + u * 5, by + u * 5.5, u * 3.8, COL.paper, 'left', 'middle');
-  txtShadow('Bütün arabalar eşit güçte', gv.x + u * 5, by + u * 11, u * 3.4, COL.focus, 'left', 'middle');
+  var upn = upgradesFor(gIdx, ch.model), pidx = perfIndex(ch.model, upn), prG = profileOf(gIdx);
+  txtShadow('Güç puanı ' + pidx, gv.x + u * 5, by, u * 4.2, COL.focus, 'left', 'middle');
+  var bw2 = Math.min(gv.w * 0.42, u * 44), bx2 = gv.x + u * 33;
+  ctx.fillStyle = 'rgba(255,255,255,.16)'; rr(ctx, bx2, by - u * 1.4, bw2, u * 2.8, u * 1.4); ctx.fill();
+  ctx.fillStyle = COL.focus; rr(ctx, bx2, by - u * 1.4, bw2 * clamp((pidx - 60) / 70, 0.04, 1), u * 2.8, u * 1.4); ctx.fill();
+  txtShadow('Motor ' + upn.engine + '/' + MAX_UP + '   Lastik ' + upn.tire + '/' + MAX_UP + '   Nitro ' + upn.nitro + '/' + MAX_UP, gv.x + u * 5, by + u * 5.5, u * 3.6, COL.paper, 'left', 'middle');
+  txtShadow(prG ? 'Para: ' + fmtTL(prG.money) : '', gv.x + u * 5, by + u * 10.5, u * 4, COL.focus, 'left', 'middle');
   var ix, iy, colW, availH;
   if (wide) { ix = W * 0.58; colW = W * 0.39; iy = u * 5; }
   else { ix = u * 3; colW = W - u * 6; iy = gv.h + u * 3; }
@@ -3062,6 +3409,7 @@ function drawGarageUI(hint) {
   ctx.fillStyle = COL.blue; rr(ctx, ix, iy, colW, titleH, u * 2); ctx.fill();
   ctx.strokeStyle = COL.paper; ctx.lineWidth = u * 0.5; rr(ctx, ix + u, iy + u, colW - u * 2, titleH - u * 2, u * 1.3); ctx.stroke();
   txt('Garaj', ix + u * 4.5, iy + u * 8.6, u * 7, COL.paper);
+
   if (profileOf(gIdx)) txt(fmtTL(profileOf(gIdx).money), ix + u * 27, iy + u * 8.2, u * 4.4, COL.focus);
   var okW = Math.min(colW * 0.36, u * 26), okH = titleH - u * 3.4;
   garageOk = { x: ix + colW - okW - u * 1.7, y: iy + u * 1.7, w: okW, h: okH };
@@ -3111,10 +3459,14 @@ function drawHUD2DInner(dt) {
     if (isTouch && (state === 'race' || state === 'countdown') && NET.role !== 'host') drawTopButtons();
   }
   if (state === 'menu') drawMenuScreen('Gece Yarışı', [THEME.name + ' · ' + MODES[modeIdx].name + (MODES[modeIdx].id === 'race' ? (numPlayers > 1 ? ' · sadece siz' : ' · ' + RIVALS + ' rakip') : '') + (trackRecords().lap !== null ? ' · rekor ' + fmt(trackRecords().lap) : ''), (profileOf(0) ? profileOf(0).name + ': ' + fmtTL(profileOf(0).money) : '')], menuItems(), hint, 0.25);
+  else if (state === 'career') { var prc = profileOf(0); drawMenuScreen('Kariyer', [prc ? prc.name + ' · ' + fmtTL(prc.money) : '', CAR_MODELS[prc ? prc.car : 'yildiz'].name + ' · güç puanı ' + perfIndex(prc ? prc.car : 'yildiz', prc ? prc.up[prc.car] : {}) + ' · ' + (prc ? prc.owned.length : 1) + ' araba'], menuItems(), hint, 0.5); }
+  else if (state === 'missions') drawMenuScreen('Görevler', ['Tamamlananlar para kazandırır'], menuItems(), hint, 0.5);
   else if (state === 'settings') drawMenuScreen('Ayarlar', ['Sürüş rahat: savrulmayı frenleyen yardım açık'], menuItems(), hint, 0.45);
   else if (state === 'pause') drawMenuScreen('Duraklatıldı', ['Süre ' + fmt(raceT)], menuItems(), hint, 0.5);
   else if (state === 'results' && resultsT > 1.2) { var RS = buildResults(); drawMenuScreen(RS.title, RS.lines, menuItems(), hint, 0.5); }
   else if (state === 'profiles') drawMenuScreen('Profiller', ['Para ve arabalar bu cihazda saklanır'], menuItems(), hint, 0.5);
+  else if (state === 'career') drawMenuScreen('Kariyer', [profileOf(0) ? profileOf(0).name + ' · ' + fmtTL(profileOf(0).money) : '', 'Araban: ' + CAR_MODELS[choices[0].model].name + ' · güç puanı ' + perfIndex(choices[0].model, choices[0].up || upgradesFor(0, choices[0].model))], menuItems(), hint, 0.45);
+  else if (state === 'missions') drawMenuScreen('Görevler', [missionsDone(profileOf(0)) + ' / ' + MISSIONS.length + ' tamamlandı', 'Ödüller otomatik hesabına geçer'], menuItems(), hint, 0.45);
   if (SH > SW && (state !== 'race' || raceT < 4)) {
     var u2 = SH / 100;
     ctx.fillStyle = 'rgba(6,9,16,.85)'; ctx.fillRect(0, 0, SW, u2 * 6);
@@ -3143,9 +3495,9 @@ function sanitizeChoice(ch) {
   if (MODEL_KEYS.indexOf(ch.model) < 0) ch.model = 'kaiser';
   function n(k, max) { ch[k] = clamp(Math.floor(+ch[k] || 0), 0, max - 1); }
   n('paint', PAINTS.length); n('finish', FINISHES.length); n('rim', RIM_TYPES.length); n('rimColor', RIM_COLORS.length);
-  n('spoiler', SPOILERS.length); n('kit', KITS.length); n('flaps', 2); n('tint', TINTS.length); n('neon', NEONS_UNDER.length);
+  n('spoiler', SPOILERS.length); n('kit', KITS.length); n('flaps', 2); n('tint', TINTS.length); n('neon', NEONS_UNDER.length); n('sticker', STICKERS.length); n('stickerColor', STICKER_COLORS.length);
   ch.plate = String(ch.plate || '').slice(0, 10);
-  var up = ch.up || {}; ch.up = { engine: clamp(up.engine | 0, 0, 3), nitro: clamp(up.nitro | 0, 0, 3), tire: clamp(up.tire | 0, 0, 3) };
+  var up = ch.up || {}; ch.up = { engine: clamp(up.engine | 0, 0, 6), nitro: clamp(up.nitro | 0, 0, 6), tire: clamp(up.tire | 0, 0, 6) };
   return ch;
 }
 function resultsSummary(forSlot) { return buildResults(); }
@@ -3555,11 +3907,15 @@ function remoteResults() {
 var DIFF_NAMES = ['kolay', 'normal', 'zor'];
 var STEER_NAMES = ['butonlar', 'telefonu eğ', 'eğ (ters)'];
 function cyc(v, n, d) { return (v + (d || 1) + n) % n; }
+function openCareer() { initAudio(); state = 'career'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
+function openMissions() { initAudio(); state = 'missions'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
+function openCareer() { initAudio(); careerEvent = null; state = 'career'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
+function openMissions() { state = 'missions'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; }
 function openGarage() { initAudio(); state = 'garage'; gIdx = 0; menu.focus = numPlayers > 1 ? 1 : 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
 function openSettings() { state = 'settings'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; guardBack(); }
 var delConfirm = false;
 function openProfiles() { state = 'profiles'; menu.focus = 0; menu.scroll = 0; menu.userScroll = false; delConfirm = false; guardBack(); }
-function backToMenu(f) { if (state === 'garage') leaveGarageFix(); disposeGarage(); state = 'menu'; menu.focus = f || 0; menu.scroll = 0; menu.userScroll = false; }
+function backToMenu(f) { careerEvent = null; if (state === 'garage') leaveGarageFix(); disposeGarage(); state = 'menu'; menu.focus = f || 0; menu.scroll = 0; menu.userScroll = false; }
 function pauseGame() { if (state !== 'race' && state !== 'countdown') return; pausedFrom = state; state = 'pause'; menu.focus = 0; clearControls(); }
 function resumeGame() { state = pausedFrom; menu.focus = 0; clearControls(); }
 function clearControls() { [kb1, kb2, touchIn[0], touchIn[1]].forEach(function (k) { k.left = k.right = k.gas = k.brake = k.hand = k.nitro = false; }); }
@@ -3578,22 +3934,63 @@ function goFullscreen() {
 function lockLandscape() { try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {}); } catch (e) {} }
 
 function garageItem(label, value, key, n, extra) {
-  var it = { t: label + ': ' + value, toggle: true, arrows: true, a: function (d) { choices[gIdx][key] = cyc(choices[gIdx][key], n, d); } };
+  var owned = ownsItem(gIdx, key, choices[gIdx][key]), price = itemPrice(key, choices[gIdx][key]);
+  var it = { t: label + ': ' + value + (owned ? '' : '   ' + fmtTL(price)), toggle: true, arrows: true, locked: !owned,
+    a: function (d) { if (d === 0) { buyItem(gIdx, key); return; } choices[gIdx][key] = cyc(choices[gIdx][key], n, d); } };
   if (extra) for (var k in extra) it[k] = extra[k];
+  if (!owned) it.sub = 'satın al: ortasına dokun / OK';
   return it;
 }
 function menuItems() {
+  if (state === 'career') {
+    var pr = profileOf(0), evs = careerEvents(pr), g = [];
+    evs.forEach(function (ev) { g.push({ t: ev.title + '   ' + fmtTL(ev.reward), sub: ev.info + ' · ' + TRACKS[ev.track].name, a: function () { startCareerEvent(ev); } }); });
+    g.push({ t: 'Görevler (' + missionsDone(pr) + '/' + MISSIONS.length + ')', a: openMissions });
+    g.push({ t: 'Garaj ve mağaza', a: openGarage });
+    g.push({ t: 'Geri', a: function () { backToMenu(1); } });
+    return g;
+  }
+  if (state === 'missions') {
+    var pm = profileOf(0), gm = [];
+    MISSIONS.forEach(function (M) {
+      var pg = M.prog(pm), done = pm.missions && pm.missions[M.id];
+      gm.push({ t: (done ? '✓ ' : '') + M.name + '   ' + fmtTL(M.reward), sub: done ? 'tamamlandı' : 'ilerleme ' + Math.min(pg[0], pg[1]) + '/' + pg[1], a: function () {} });
+    });
+    gm.push({ t: 'Geri', a: function () { state = 'career'; menu.focus = 0; menu.scroll = 0; } });
+    return gm;
+  }
   if (state === 'menu') return [
-    { t: MODES[modeIdx].id === 'race' ? 'Yarışa başla' : (MODES[modeIdx].id === 'drift' ? 'Drift başlat' : 'Kaçışı başlat'), a: function () { NET.playerSlots = null; startRace(); } },
+    { t: 'Kariyer', a: openCareer },
+    { t: MODES[modeIdx].id === 'race' ? 'Hızlı yarış' : (MODES[modeIdx].id === 'drift' ? 'Drift başlat' : (MODES[modeIdx].id === 'tt' ? 'Zamana karşı başlat' : 'Kaçışı başlat')), a: function () { careerEvent = null; NET.playerSlots = null; startRace(); } },
     { t: 'Mod: ' + MODES[modeIdx].name, toggle: true, arrows: true, a: function (d) { modeIdx = cyc(modeIdx, MODES.length, d); } },
     isTouch ? { t: "TV'ye bağlan (telefon kumanda)", a: function () { NET.joinKind = 'pad'; openPadJoin(); } } : { t: 'Telefonla oyna (TV ekranı)', a: startHost },
     { t: 'Uzaktan yarış (kendi ekranımda)', a: openRemoteJoin },
+    { t: 'Kariyer', a: openCareer },
+    { t: 'Görevler (' + missionsDone(profileOf(0)) + '/' + MISSIONS.length + ')', a: openMissions },
     { t: 'Garaj ve mağaza', a: openGarage },
     { t: 'Profil: ' + (profileOf(0) ? profileOf(0).name + ' (' + fmtTL(profileOf(0).money) + ')' : '-'), a: openProfiles },
     { t: 'Oyuncu: ' + numPlayers + ' kişi', toggle: true, a: function () { numPlayers = numPlayers === 1 ? 2 : 1; } },
     { t: 'Pist: ' + THEME.name, toggle: true, arrows: true, a: function (d) { selectTrack(d); } },
     { t: 'Ayarlar', a: openSettings }
   ];
+  if (state === 'career') {
+    var pr = profileOf(0), list = [];
+    if (!pr) return [{ t: 'Önce profil seç', a: openProfiles }, { t: 'Geri', a: function () { backToMenu(1); } }];
+    careerEvents(pr).forEach(function (ev) {
+      list.push({ t: ev.title + ' · ' + TRACKS[ev.track].name + ' · ödül ' + fmtTL(ev.reward), sub: ev.info, a: function () { startCareerEvent(ev); } });
+    });
+    list.push({ t: 'Geri', a: function () { backToMenu(1); } });
+    return list;
+  }
+  if (state === 'missions') {
+    var pm = profileOf(0), ml = [];
+    if (pm) MISSIONS.forEach(function (M) {
+      var pg = M.prog(pm), done = !!(pm.missions && pm.missions[M.id]);
+      ml.push({ t: (done ? '✓ ' : '') + M.name, sub: (done ? 'tamamlandı' : Math.min(pg[0], pg[1]) + ' / ' + pg[1]) + '   ödül ' + fmtTL(M.reward), a: function () {} });
+    });
+    ml.push({ t: 'Geri', a: function () { backToMenu(2); } });
+    return ml;
+  }
   if (state === 'settings') {
     var list = [
       { t: 'Rakipler: ' + DIFF_NAMES[difficulty], toggle: true, a: function (d) { difficulty = cyc(difficulty, 3, d); } },
@@ -3647,23 +4044,31 @@ function menuItems() {
     }
     var prof = profileOf(gIdx), own = owns(gIdx, ch.model);
     g.push({ t: 'Araba: ' + CAR_MODELS[ch.model].name + (own ? '' : '  (kilitli)'), toggle: true, arrows: true, a: function (d) { var i = MODEL_KEYS.indexOf(choices[gIdx].model); choices[gIdx].model = MODEL_KEYS[cyc(i, MODEL_KEYS.length, d)]; } });
-    if (prof && !own) g.push({ t: 'Satın al: ' + fmtTL(CAR_PRICE[ch.model]) + '   (paran ' + fmtTL(prof.money) + ')', a: function () { buyCar(gIdx); } });
+    if (prof && !own) g.push({ t: lockText(gIdx, ch.model), sub: 'Kariyer menüsünden düelloya gir', a: function () { backToMenu(3); openCareer(); } });
     if (prof && own) UPGRADES.forEach(function (U) {
       var lv = upgradesFor(gIdx, ch.model)[U.key];
-      g.push({ t: U.name + ': ' + (U.key === 'nitro' ? (lv === 0 ? 'standart' : 'seviye ' + lv) : 'seviye ' + lv) + (lv < 3 ? '   yükselt ' + fmtTL(U.prices[lv]) : '   (en üst)'), a: function () { buyUpgrade(gIdx, U.key); } });
+      g.push({ t: U.name + ': ' + (U.key === 'nitro' ? (lv === 0 ? 'standart' : lv + '/' + MAX_UP) : lv + '/' + MAX_UP) + (lv < MAX_UP ? '   yükselt ' + fmtTL(U.prices[lv]) : '   (en üst)'), a: function () { buyUpgrade(gIdx, U.key); } });
     });
-    g.push(garageItem('Boya', PAINTS[ch.paint].n, 'paint', PAINTS.length, { swatch: PAINTS[ch.paint].h }));
-    g.push(garageItem('Boya türü', FINISHES[ch.finish], 'finish', FINISHES.length));
-    g.push(garageItem('Jant', RIM_TYPES[ch.rim], 'rim', RIM_TYPES.length));
-    g.push(garageItem('Jant rengi', RIM_COLORS[ch.rimColor].n, 'rimColor', RIM_COLORS.length, { swatch: RIM_COLORS[ch.rimColor].h }));
-    g.push(garageItem('Spoyler', SPOILERS[ch.spoiler], 'spoiler', SPOILERS.length));
-    g.push(garageItem('Kaporta kiti', KITS[ch.kit], 'kit', KITS.length));
-    g.push(garageItem('Karlık', ch.flaps ? 'var' : 'yok', 'flaps', 2));
-    g.push(garageItem('Cam filmi', TINTS[ch.tint].n, 'tint', TINTS.length, { swatch: TINTS[ch.tint].c }));
-    g.push(garageItem('Alt neon', NEONS_UNDER[ch.neon].n, 'neon', NEONS_UNDER.length, ch.neon ? { swatch: NEONS_UNDER[ch.neon].h } : null));
+    function shopItem(label, key, valName, n, extra) {
+      var idx = ch[key] | 0, have = ownsItem(gIdx, key, idx), price = itemPrice(key, idx);
+      var it = garageItem(label, valName + (have ? '' : '  🔒 ' + fmtTL(price)), key, n, extra);
+      g.push(it);
+      if (!have) g.push({ t: '   → satın al: ' + fmtTL(price) + (prof ? '   (paran ' + fmtTL(prof.money) + ')' : ''), a: function () { buyItem(gIdx, key); } });
+    }
+    shopItem('Boya', 'paint', PAINTS[ch.paint].n, PAINTS.length, { swatch: PAINTS[ch.paint].h });
+    shopItem('Boya türü', 'finish', FINISHES[ch.finish], FINISHES.length);
+    shopItem('Jant', 'rim', RIM_TYPES[ch.rim], RIM_TYPES.length);
+    shopItem('Jant rengi', 'rimColor', RIM_COLORS[ch.rimColor].n, RIM_COLORS.length, { swatch: RIM_COLORS[ch.rimColor].h });
+    shopItem('Sticker', 'sticker', STICKERS[ch.sticker | 0], STICKERS.length);
+    if (ch.sticker) shopItem('Sticker rengi', 'stickerColor', STICKER_COLORS[ch.stickerColor | 0].n, STICKER_COLORS.length, { swatch: STICKER_COLORS[ch.stickerColor | 0].h });
+    shopItem('Spoyler', 'spoiler', SPOILERS[ch.spoiler], SPOILERS.length);
+    shopItem('Kaporta kiti', 'kit', KITS[ch.kit], KITS.length);
+    shopItem('Karlık', 'flaps', ch.flaps ? 'var' : 'yok', 2);
+    shopItem('Cam filmi', 'tint', TINTS[ch.tint].n, TINTS.length, { swatch: TINTS[ch.tint].c });
+    shopItem('Alt neon', 'neon', NEONS_UNDER[ch.neon].n, NEONS_UNDER.length, ch.neon ? { swatch: NEONS_UNDER[ch.neon].h } : null);
     g.push({ t: 'Plaka: ' + ch.plate, a: openPlateEditor });
     if (state === 'pad') { g.push({ t: 'Yarışı başlat ▶', a: function () { padSend({ t: 'start' }); } }); g.push({ t: 'Bağlantıyı kes', a: padLeave }); }
-    else g.push({ t: 'Tamam', a: function () { backToMenu(1); } });
+    else g.push({ t: 'Tamam', a: function () { backToMenu(3); } });
     return g;
   }
   if (state === 'pause') return [
@@ -3678,7 +4083,7 @@ function menuItems() {
   return [];
 }
 function menuMove(d) { var it = menuItems(); if (!it.length) return; menu.userScroll = false; menu.focus = (menu.focus + d + it.length) % it.length; beep(520, 0.04, 'triangle', 0.05); }
-function menuSelect() { var it = menuItems(); if (!it.length) return; initAudio(); it[clamp(menu.focus, 0, it.length - 1)].a(1); }
+function menuSelect() { var it = menuItems(); if (!it.length) return; initAudio(); var x = it[clamp(menu.focus, 0, it.length - 1)]; x.a(x.locked ? 0 : 1); }
 function menuToggle(d) { var it = menuItems(); if (!it.length) return; var x = it[clamp(menu.focus, 0, it.length - 1)]; if (x.toggle) { x.a(d); beep(620, 0.04, 'triangle', 0.05); } }
 function goBack() {
   if (plateOpen) { closePlateEditor(false); return; }
@@ -3687,13 +4092,17 @@ function goBack() {
   if (state === 'pad') { if (NET.padState === 'lobby') padLeave(); else if (NET.padState === 'pause') padSend({ t: 'resume' }); else if (isPadRacing()) padSend({ t: 'pause' }); return; }
   if (state === 'pause') resumeGame();
   else if (state === 'results') { if (NET.inRemoteRace) { remoteBackToLobby(); padSend({ t: 'lobby' }); } else toMenu(); }
-  else if (state === 'settings') backToMenu(8);
-  else if (state === 'profiles') backToMenu(4);
-  else if (state === 'garage') backToMenu(1);
+  else if (state === 'career') backToMenu(1);
+  else if (state === 'missions') backToMenu(2);
+  else if (state === 'missions') { state = 'career'; menu.focus = 0; }
+  else if (state === 'career') backToMenu(1);
+  else if (state === 'settings') backToMenu(10);
+  else if (state === 'profiles') backToMenu(6);
+  else if (state === 'garage') backToMenu(3);
   else if (state === 'menu') exitApp();
   else pauseGame();
 }
-function isMenuState() { return state === 'menu' || state === 'profiles' || state === 'settings' || state === 'garage' || state === 'pause' || state === 'lobby' || state === 'padjoin' || (state === 'results' && resultsT > 1.2) || (state === 'pad' && !isPadRacing()); }
+function isMenuState() { return state === 'menu' || state === 'career' || state === 'missions' || state === 'profiles' || state === 'settings' || state === 'garage' || state === 'pause' || state === 'lobby' || state === 'padjoin' || (state === 'results' && resultsT > 1.2) || (state === 'pad' && !isPadRacing()); }
 
 // ---------------- Plaka yazma ----------------
 var plateInput = document.getElementById('plate'), plateOpen = false;
@@ -3877,10 +4286,10 @@ glCanvas.addEventListener('touchmove', function (e) {
 glCanvas.addEventListener('touchend', function (e) {
   e.preventDefault();
   var pe = toCanvas(e.changedTouches[0]);
-  if (tapOk) { tapOk = false; if (isGarageLike() && garageOk && inRect(pe, garageOk)) { beep(620, 0.05, 'triangle', 0.05); if (state === 'pad') padSend({ t: 'start' }); else backToMenu(1); } }
+  if (tapOk) { tapOk = false; if (isGarageLike() && garageOk && inRect(pe, garageOk)) { beep(620, 0.05, 'triangle', 0.05); if (state === 'pad') padSend({ t: 'start' }); else backToMenu(3); } }
   if (isMenuState() && tapStartItem >= 0 && !(listDrag && listDrag.moved)) {
     var h = hitItem(pe), items = menuItems();
-    if (h && h.i === tapStartItem && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(pe.x < h.x + h.w * 0.35 ? -1 : 1); }
+    if (h && h.i === tapStartItem && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; var rel = (pe.x - h.x) / h.w; items[h.i].a(items[h.i].locked && rel > 0.3 && rel < 0.7 ? 0 : (rel < 0.35 ? -1 : 1)); }
   }
   tapStartItem = -1;
   if (!e.touches.length) listDrag = null;
@@ -3910,8 +4319,8 @@ glCanvas.addEventListener('mousedown', function (e) {
   var p = toCanvas(e);
   if (isMenuState()) {
     var h = hitItem(p), items = menuItems();
-    if (isGarageLike() && garageOk && inRect(p, garageOk)) { if (state === 'pad') padSend({ t: 'start' }); else backToMenu(1); return; }
-    if (h && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; items[h.i].a(p.x < h.x + h.w * 0.35 ? -1 : 1); }
+    if (isGarageLike() && garageOk && inRect(p, garageOk)) { if (state === 'pad') padSend({ t: 'start' }); else backToMenu(3); return; }
+    if (h && items[h.i]) { initAudio(); menu.focus = h.i; menu.userScroll = true; var rl = (p.x - h.x) / h.w; items[h.i].a(items[h.i].locked && rl > 0.3 && rl < 0.7 ? 0 : (rl < 0.35 ? -1 : 1)); }
     else if (state === 'garage' && garageView && inRect(p, garageView)) garageDrag = { x: p.x, spin: garageSpin };
   }
 });
@@ -3991,7 +4400,7 @@ applySavedSettings();
 applyQuality();
 requestAnimationFrame(frame);
 setTimeout(runLoad, 30);
-window.__game = { remote: { openRemoteJoin: openRemoteJoin, get netCars() { return netCars; }, get NET() { return NET; } }, playerName: function (p) { return playerName(p); }, endRaceNow: function () { endRace(); }, tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
+window.__game = { openCareer: openCareer, openMissions: openMissions, careerApi: { freeCars: function () { return freeCars; }, perfIndex: perfIndex, events: careerEvents, start: startCareerEvent, missionsDone: missionsDone, missionCount: function () { return MISSIONS.length; }, tier: carTier, buyItem: buyItem, ownsItem: ownsItem, itemPrice: itemPrice }, remote: { openRemoteJoin: openRemoteJoin, get netCars() { return netCars; }, get NET() { return NET; } }, playerName: function (p) { return playerName(p); }, endRaceNow: function () { endRace(); }, tt: { delta: function (p) { return ttDelta(p); }, ghostVisible: function () { return !!(ghost.mesh && ghost.mesh.visible); }, records: function () { return trackRecords(); } }, career: { get SAVE() { return SAVE; }, buyCar: buyCar, buyUpgrade: buyUpgrade, profileOf: profileOf, setMode: function (i) { modeIdx = i; }, get gameMode() { return gameMode; }, setDiff: function (d) { difficulty = d; }, get flash() { return flashMsg; } }, audio: function () { return { actx: actx, AUD: AUD, init: initAudio }; }, selectTrack: function (i) { trackIdx = (i - 1 + TRACKS.length) % TRACKS.length; selectTrack(1); }, get theme() { return THEME; }, setDiff: function (d) { difficulty = d; }, net: { NET: NET, startHost: startHost, openPadJoin: openPadJoin, padConnect: padConnect, padSend: padSend, choices: choices }, autoPilot: function (p) { return autoPilot(p); }, phys: { step: function (c, dt, i) { stepVehicle(c, dt, i); }, make: makeVehicle, setAssist: function (v) { assist = v; } }, scene: scene, renderer: renderer, THREE: THREE, DEBUG: DEBUG, place: function (i, s, off) { placeCarOnTrack(players[i], s, off); players[i].camPos = null; }, setCam: function (i, m) { players[i].camMode = m; players[i].camPos = null; }, setGIdx: function (i) { gIdx = i; }, get state() { return state; }, get players() { return players; }, get rivals() { return rivals; }, startRace: startRace, get track() { return TRACK; }, setState: function (s) { state = s; }, openGarage: openGarage, choices: choices, setNP: function (n) { numPlayers = n; } };
 })();
 
 </script>
